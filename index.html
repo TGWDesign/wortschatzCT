@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>WortSchatz 德文單字庫</title>
+  
+  <!-- iOS PWA Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="WortSchatz">
+  <meta name="theme-color" content="#F8FAFC">
+  
+  <!-- Apple Touch Icon -->
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='115' fill='%230F172A'/%3E%3Cg transform='translate(96, 96) scale(0.625)'%3E%3Crect width='512' height='170' fill='%23000000' rx='20'/%3E%3Crect y='170' width='512' height='170' fill='%23DD0000'/%3E%3Crect y='340' width='512' height='172' fill='%23FFCE00' rx='20'/%3E%3C/g%3E%3Ctext x='50%25' y='65%25' dominant-baseline='central' text-anchor='middle' font-family='-apple-system, system-ui, sans-serif' font-weight='900' font-size='160' fill='%23FFFFFF'%3EW%3C/text%3E%3Ctext x='50%25' y='86%25' dominant-baseline='central' text-anchor='middle' font-family='-apple-system, system-ui, sans-serif' font-weight='800' font-size='42' fill='%2338BDF8'%3EB1 移民衝刺%3C/text%3E%3C/svg%3E">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            der: '#2563EB',
+            die: '#DC2626',
+            das: '#16A34A',
+            verb: '#9333EA',
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"Segoe UI"', 'Roboto', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      touch-action: pan-y;
+    }
+    .safe-top {
+      padding-top: max(env(safe-area-inset-top), 14px);
+    }
+    .safe-bottom {
+      padding-bottom: max(env(safe-area-inset-bottom), 24px);
+    }
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+    .transform-style-3d {
+      transform-style: preserve-3d;
+    }
+    .backface-hidden {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .rotate-y-180 {
+      transform: rotateY(180deg);
+    }
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between font-sans">
+
+  <!-- ================= TOP HEADER ================= -->
+  <header class="bg-white/85 backdrop-blur-md sticky top-0 z-30 border-b border-slate-200 safe-top px-4 pb-2.5">
+    <div class="max-w-md mx-auto">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <span class="text-2xl">🇩🇪</span>
+          <div>
+            <div class="flex items-center space-x-1.5">
+              <h1 class="font-bold text-base leading-tight tracking-tight text-slate-800">WortSchatz</h1>
+              <span id="headerLevelBadge" class="bg-blue-100 text-blue-700 text-[10px] font-extrabold px-1.5 py-0.5 rounded-md">Lv.1</span>
+            </div>
+            <p class="text-[11px] text-slate-500 font-medium">德語移民認證 (A1-B1) • 50主題</p>
+          </div>
+        </div>
+        
+        <div class="flex items-center space-x-1.5">
+          <div class="flex items-center space-x-1 bg-amber-50 border border-amber-200/60 px-2 py-1 rounded-full text-xs font-bold text-amber-700">
+            <span>🔥</span>
+            <span id="topStreakCount">1</span>
+          </div>
+
+          <div class="flex items-center space-x-1 bg-indigo-50 border border-indigo-200/60 px-2 py-1 rounded-full text-xs font-bold text-indigo-700">
+            <span>⚡</span>
+            <span id="topXpCount">0</span>
+          </div>
+
+          <button id="btnOpenSyncModal" class="flex items-center space-x-1 bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-full active:scale-95 transition" title="單字管理">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>
+            <span>題庫</span>
+          </button>
+
+          <button id="btnOpenAddModal" class="p-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-full shadow-xs active:scale-95 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT VIEWPORT ================= -->
+  <main class="flex-1 max-w-md w-full mx-auto p-4 mb-20 overflow-y-auto">
+
+    <!-- ========== VIEW 1: FLASHCARDS (複習卡片) ========== -->
+    <section id="viewCards" class="space-y-3">
+      
+      <!-- 7 DOMAINS & 50 THEMES SELECTOR -->
+      <div class="bg-white p-2.5 rounded-2xl shadow-xs border border-slate-200 space-y-2">
+        <div class="flex items-center justify-between px-1">
+          <span class="text-xs font-bold text-slate-700 flex items-center space-x-1">
+            <span>📚 7大領域 • 50主題庫</span>
+          </span>
+          
+          <button id="btnToggleAutoCycle" class="flex items-center space-x-1 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 active:scale-95 transition">
+            <span id="autoCycleDot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+            <span id="autoCycleLabel">50主題輪播：關</span>
+          </button>
+        </div>
+
+        <div class="flex space-x-1.5 overflow-x-auto pb-0.5 text-xs font-semibold">
+          <button data-domain="all" class="domain-pill px-3 py-1.5 rounded-xl bg-slate-900 text-white shrink-0">全部 (<span id="countDomainAll">0</span>)</button>
+          <button data-domain="daily" class="domain-pill px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 shrink-0">☕ 日常生活 (<span id="countDomainDaily">0</span>)</button>
+          <button data-domain="food" class="domain-pill px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 shrink-0">🍽️ 飲食餐飲 (<span id="countDomainFood">0</span>)</button>
+          <button data-domain="travel" class="domain-pill px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 shrink-0">✈️ 交通旅遊 (<span id="countDomainTravel">0</span>)</button>
+          <button data-domain="social" class="domain-pill px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 shrink-0">👥 人際家庭 (<span id="countDomainSocial">0</span>)</button>
+          <button data-domain="immigration" class="domain-pill px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 shrink-0">🏛️ 居留市政 (<span id="countDomainImmigration">0</span>)</button>
+          <button data-domain="work" class="domain-pill px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 shrink-0">💼 職場進修 (<span id="countDomainWork">0</span>)</button>
+          <button data-domain="health" class="domain-pill px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 shrink-0">🏥 健康醫療 (<span id="countDomainHealth">0</span>)</button>
+        </div>
+
+        <div class="flex items-center justify-between pt-1 border-t border-slate-100 px-1 text-[11px]">
+          <span class="text-slate-400 font-medium">難度篩選：</span>
+          <div class="flex space-x-1 font-bold">
+            <button data-level="all" class="level-pill px-2 py-0.5 rounded-md bg-blue-600 text-white">全部</button>
+            <button data-level="A1" class="level-pill px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">A1 基礎</button>
+            <button data-level="A2" class="level-pill px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">A2 初級</button>
+            <button data-level="B1" class="level-pill px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">B1 移民必備</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flashcard Deck Container (Gesture & Click Separated) -->
+      <div id="deckContainer" class="relative w-full h-[390px] perspective-1000">
+        <!-- The 3D Flip Card -->
+        <div id="flashcard" class="w-full h-full relative transform-style-3d transition-transform duration-300">
+          
+          <!-- FRONT FACE (德文正面) -->
+          <div id="cardFront" class="absolute inset-0 w-full h-full bg-white rounded-3xl p-5 shadow-xl border border-slate-150 flex flex-col justify-between backface-hidden">
+            
+            <!-- ZONE 1: TAP TO FLIP ZONE (上半部專屬點擊翻面區) -->
+            <div id="cardFrontTapArea" class="flex-1 flex flex-col justify-between cursor-pointer">
+              <!-- Top Badges & Dedicated Flip Button -->
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-1.5 flex-wrap">
+                  <span id="cardGenderBadge" class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-white bg-der shadow-xs">
+                    der
+                  </span>
+                  <span id="cardLevelBadge" class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200">
+                    B1
+                  </span>
+                  <span id="cardThemeBadge" class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-600 truncate max-w-[140px]">
+                    🏛️ 居留與市政
+                  </span>
+                </div>
+
+                <!-- Explicit, Clickable Flip Button -->
+                <button id="btnExplicitFlip" type="button" class="flex items-center space-x-1 text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-full text-xs font-bold active:scale-95 transition">
+                  <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                  <span>翻面</span>
+                </button>
+              </div>
+
+              <!-- Central Word (With Dynamic Font Sizing) -->
+              <div class="text-center my-auto py-3">
+                <h2 id="cardWord" class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-2">
+                  Aufenthaltstitel
+                </h2>
+                <p id="cardPlural" class="text-sm font-semibold text-slate-500">
+                  die Aufenthaltstitel
+                </p>
+                <div id="cardPhonetic" class="mt-2 inline-block px-2.5 py-1 bg-slate-100 text-slate-600 text-xs rounded-lg font-mono">
+                  [ˈaʊ̯fʔɛntˌhaltstiːtl̩]
+                </div>
+              </div>
+
+              <div class="text-center text-[11px] text-slate-400 py-1">
+                👆 點擊單字區域翻面查看中文
+              </div>
+            </div>
+
+            <!-- ZONE 2: AUDIO CONTROLS ZONE (發音控制區：徹底獨立，禁止冒泡翻面) -->
+            <div id="audioControlBar" class="space-y-2 pt-2.5 border-t border-slate-100">
+              <div class="flex items-center justify-center space-x-2">
+                <button id="btnPlayTTS" type="button" class="flex items-center space-x-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 px-3.5 py-2 rounded-xl text-xs font-semibold active:scale-95 transition-transform">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+                  <span>標準德音</span>
+                </button>
+                
+                <button id="btnToggleSpeed" type="button" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-2 rounded-xl font-mono active:scale-95 transition">
+                  1.0x
+                </button>
+
+                <button id="btnRecordSelf" type="button" class="flex items-center space-x-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 px-3 py-2 rounded-xl text-xs font-semibold active:scale-95 transition-transform">
+                  <span id="recordIcon" class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                  <span id="recordLabel">錄音跟讀</span>
+                </button>
+
+                <button id="btnPlaySelf" type="button" class="hidden flex items-center space-x-1 bg-amber-50 text-amber-800 px-3 py-2 rounded-xl text-xs font-semibold active:scale-95 transition">
+                  <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/></svg>
+                  <span>回放</span>
+                </button>
+              </div>
+
+              <p class="text-[10px] text-center text-slate-400">
+                👈 左滑忘記 • 右滑記住 • 發音與翻面已完全分離
+              </p>
+            </div>
+          </div>
+
+          <!-- BACK FACE (釋義背面) -->
+          <div id="cardBack" class="absolute inset-0 w-full h-full bg-slate-900 text-white rounded-3xl p-5 shadow-xl flex flex-col justify-between rotate-y-180 backface-hidden">
+            <div id="cardBackTapArea" class="flex-1 flex flex-col justify-between cursor-pointer">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <span id="backCardGender" class="text-xs font-bold text-blue-400 uppercase tracking-wider">der Aufenthaltstitel</span>
+                <span id="backCardLevel" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-900/60 text-blue-300">B1 移民認證</span>
+              </div>
+
+              <div class="my-auto space-y-3 py-2">
+                <div>
+                  <span class="text-xs font-medium text-slate-400 block mb-0.5">中文釋義</span>
+                  <p id="cardMeaning" class="text-2xl font-bold text-white tracking-wide">
+                    居留許可 / 居留簽證
+                  </p>
+                </div>
+
+                <div class="bg-slate-800/80 rounded-2xl p-3 border border-slate-700/60">
+                  <span class="text-[11px] uppercase tracking-wider font-semibold text-slate-400 block mb-0.5">例句（Beispielsatz）</span>
+                  <p id="cardExample" class="text-sm text-slate-100 font-medium leading-relaxed">
+                    Ich muss meinen Aufenthaltstitel bei der Ausländerbehörde verlängern.
+                  </p>
+                  <p id="cardExampleZh" class="text-xs text-slate-400 mt-1">
+                    我必須到外事局延長我的居留許可。
+                  </p>
+                </div>
+
+                <div id="cardNoteBox" class="bg-amber-950/40 border border-amber-600/30 rounded-xl px-3 py-2 text-xs text-amber-200">
+                  <span class="font-bold">發音與考點：</span>
+                  <span id="cardNoteText">複合名詞：Aufenthalt + Titel；重音在前面。</span>
+                </div>
+              </div>
+            </div>
+
+            <button id="btnFlipBack" type="button" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl active:scale-95 transition">
+              🔄 點擊翻回正面
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Flashcard Review Rating Buttons -->
+      <div class="bg-white p-3 rounded-2xl shadow-xs border border-slate-200">
+        <div class="flex items-center justify-between mb-2 px-1">
+          <p class="text-xs font-bold text-slate-600">評估記憶熟練度 (+10 XP)</p>
+          <span class="text-[10px] text-slate-400">間隔重複 (SRS)</span>
+        </div>
+        <div class="grid grid-cols-4 gap-2">
+          <button onclick="rateCurrentWord(1)" class="flex flex-col items-center py-2.5 rounded-xl bg-red-50 text-red-700 font-semibold text-xs hover:bg-red-100 active:scale-95 transition">
+            <span>忘記了</span>
+            <span class="text-[10px] text-red-500 font-normal mt-0.5">10分後</span>
+          </button>
+          <button onclick="rateCurrentWord(2)" class="flex flex-col items-center py-2.5 rounded-xl bg-amber-50 text-amber-700 font-semibold text-xs hover:bg-amber-100 active:scale-95 transition">
+            <span>有點難</span>
+            <span class="text-[10px] text-amber-500 font-normal mt-0.5">明天</span>
+          </button>
+          <button onclick="rateCurrentWord(3)" class="flex flex-col items-center py-2.5 rounded-xl bg-blue-50 text-blue-700 font-semibold text-xs hover:bg-blue-100 active:scale-95 transition">
+            <span>記住了</span>
+            <span class="text-[10px] text-blue-500 font-normal mt-0.5">3天後</span>
+          </button>
+          <button onclick="rateCurrentWord(4)" class="flex flex-col items-center py-2.5 rounded-xl bg-emerald-50 text-emerald-700 font-semibold text-xs hover:bg-emerald-100 active:scale-95 transition">
+            <span>太簡單</span>
+            <span class="text-[10px] text-emerald-500 font-normal mt-0.5">7天後</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========== VIEW 2: ACHIEVEMENT DASHBOARD ========== -->
+    <section id="viewAchievements" class="hidden space-y-4">
+      <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-5 shadow-xl">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-bold text-amber-400 tracking-wider uppercase">🏛️ 德語移民認證 (DTZ / B1)</span>
+          <span id="dashLevelTitle" class="text-xs bg-white/10 px-2.5 py-0.5 rounded-full font-bold">Lv.1 德語新手</span>
+        </div>
+
+        <div class="space-y-2 mb-4">
+          <div class="flex justify-between text-xs">
+            <span class="text-slate-300">移民核心詞彙掌握度</span>
+            <span id="dashMasteryPercent" class="font-bold text-amber-300">0%</span>
+          </div>
+          <div class="w-full bg-slate-800 rounded-full h-3 p-0.5 border border-slate-700">
+            <div id="dashMasteryBar" class="bg-gradient-to-r from-amber-400 to-emerald-400 h-2 rounded-full transition-all duration-700" style="width: 5%"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 text-center text-xs">
+          <div class="bg-white/5 border border-white/10 p-2.5 rounded-2xl">
+            <span class="text-[10px] text-slate-400 block">A1 入門</span>
+            <span id="statA1Progress" class="font-bold text-emerald-400 text-sm mt-0.5 block">0/0</span>
+          </div>
+          <div class="bg-white/5 border border-white/10 p-2.5 rounded-2xl">
+            <span class="text-[10px] text-slate-400 block">A2 初級</span>
+            <span id="statA2Progress" class="font-bold text-blue-400 text-sm mt-0.5 block">0/0</span>
+          </div>
+          <div class="bg-white/5 border border-white/10 p-2.5 rounded-2xl">
+            <span class="text-[10px] text-slate-400 block">B1 移民</span>
+            <span id="statB1Progress" class="font-bold text-amber-400 text-sm mt-0.5 block">0/0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-2.5">
+        <h3 class="font-bold text-sm text-slate-800 px-1">🏆 榮譽成就勳章牆</h3>
+        <div id="badgesContainer" class="grid grid-cols-2 gap-2.5"></div>
+      </div>
+    </section>
+
+
+    <!-- ========== VIEW 3: LIBRARY (單字庫) ========== -->
+    <section id="viewLibrary" class="hidden space-y-3">
+      <div class="space-y-2">
+        <div class="relative">
+          <input id="inputSearch" type="text" placeholder="搜尋德文單字、例句、主題或中文..." 
+                 class="w-full bg-white rounded-2xl pl-10 pr-4 py-2.5 text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+
+        <div class="flex space-x-1.5 overflow-x-auto pb-0.5 text-xs font-semibold">
+          <button data-filter="all" class="filter-chip px-3 py-1.5 rounded-full bg-slate-900 text-white shadow-xs">全部詞性</button>
+          <button data-filter="der" class="filter-chip px-3 py-1.5 rounded-full bg-white border border-slate-200 text-der">der 陽性</button>
+          <button data-filter="die" class="filter-chip px-3 py-1.5 rounded-full bg-white border border-slate-200 text-die">die 陰性</button>
+          <button data-filter="das" class="filter-chip px-3 py-1.5 rounded-full bg-white border border-slate-200 text-das">das 中性</button>
+          <button data-filter="other" class="filter-chip px-3 py-1.5 rounded-full bg-white border border-slate-200 text-verb">動詞/其他</button>
+        </div>
+      </div>
+
+      <div id="wordList" class="space-y-2.5"></div>
+    </section>
+
+
+    <!-- ========== VIEW 4: PRONUNCIATION CHEATSHEET ========== -->
+    <section id="viewPronunciation" class="hidden space-y-3.5">
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-3xl p-5 shadow-md">
+        <h2 class="text-base font-bold">德語發音突破核心指南</h2>
+        <p class="text-xs text-blue-100 mt-1 leading-relaxed">
+          掌握看字讀音規則，突破 Duolingo 發音盲點！
+        </p>
+      </div>
+
+      <div class="space-y-3">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-sm text-slate-800">1. 變音（Umlaute: ä, ö, ü）</span>
+            <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-bold">口型要領</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed mb-2.5">
+            <strong>ö</strong>：發「ㄝ」嘴唇嘟成圓形「ㄛ」。<br>
+            <strong>ü</strong>：發「ㄧ」嘴唇嘟成圓形「ㄨ」。<br>
+            <strong>ä</strong>：介於「ㄚ」與「ㄝ」之間的開口音。
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="playPhoneticSample('schön')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded-lg text-slate-700 font-medium">🔊 schön</button>
+            <button onclick="playPhoneticSample('über')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded-lg text-slate-700 font-medium">🔊 über</button>
+            <button onclick="playPhoneticSample('Mädchen')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded-lg text-slate-700 font-medium">🔊 Mädchen</button>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-sm text-slate-800">2. ch 發音：Ach-Laut vs. Ich-Laut</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed mb-2.5">
+            <strong>在 a, o, u 後面（Ach-Laut）</strong>：喉嚨沙啞擦音 [x]。<br>
+            <strong>在 e, i, ä, ö, ü 後面（Ich-Laut）</strong>：舌面貼硬顎生氣貓嘶聲 [ç]。
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="playPhoneticSample('Buch')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded-lg text-slate-700 font-medium">🔊 Buch [x]</button>
+            <button onclick="playPhoneticSample('ich')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded-lg text-slate-700 font-medium">🔊 ich [ç]</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========== VIEW 5: CLOUD SYNC & SETTINGS ========== -->
+    <section id="viewSettings" class="hidden space-y-3.5">
+      
+      <!-- ONE CLICK 100 EXPANSION PACK -->
+      <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-3xl p-5 shadow-lg space-y-2.5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="text-2xl">⚡</span>
+            <div>
+              <h2 class="text-base font-bold">精選 100 實戰單字庫（含動詞）</h2>
+              <p class="text-[11px] text-emerald-100">涵蓋 25 高頻動詞、DTZ 移民居留、食衣住行</p>
+            </div>
+          </div>
+        </div>
+        <button id="btnOneClick100Pack" type="button" class="w-full py-2.5 bg-white hover:bg-emerald-50 text-emerald-900 rounded-xl text-xs font-extrabold shadow-md active:scale-95 transition flex items-center justify-center space-x-1.5">
+          <span>📦 一鍵載入/更新 100 實戰單字包</span>
+        </button>
+        <p class="text-[10px] text-emerald-200 leading-tight">
+          💡 無需輸入網址，點擊此按鈕即可自動載入 100 個高頻單字並保留你現有的學習排程。
+        </p>
+      </div>
+
+      <!-- BATCH PASTE IMPORT -->
+      <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-xs space-y-2.5">
+        <div class="flex items-center justify-between">
+          <h3 class="font-bold text-sm text-slate-800">📋 批次文字/JSON 匯入</h3>
+          <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold">免聯網 100% 成功</span>
+        </div>
+        <textarea id="textareaBatchImport" rows="3" placeholder="在此處長按貼上對話中的 100 個單字..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-mono focus:ring-2 focus:ring-blue-500"></textarea>
+        
+        <button id="btnExecuteBatchImport" type="button" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold active:scale-95 transition">
+          📥 批次匯入文字框中的單字
+        </button>
+      </div>
+
+      <!-- FORCE RELOAD UI -->
+      <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-xs space-y-2.5">
+        <h3 class="font-bold text-sm text-slate-800">🔄 系統更新與熱重載</h3>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          若主機已上傳新版本，點擊下方按鈕強制繞過 iOS Safari 快取，立即載入最新 UI：
+        </p>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="btnForceReloadUI" type="button" class="py-2.5 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-xs active:scale-95 transition">
+            🔄 強制更新最新 UI
+          </button>
+          <button id="btnExportJSON" type="button" class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-semibold active:scale-95 transition">
+            匯出學習備份 (JSON)
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= BOTTOM NAVIGATION BAR ================= -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-slate-200 z-30 safe-bottom">
+    <div class="max-w-md mx-auto grid grid-cols-5 px-1 py-1.5">
+      <button data-tab="viewCards" class="nav-tab flex flex-col items-center justify-center py-1 text-blue-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        <span class="text-[9px] font-semibold mt-1">複習卡</span>
+      </button>
+
+      <button data-tab="viewAchievements" class="nav-tab flex flex-col items-center justify-center py-1 text-slate-400">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+        <span class="text-[9px] font-semibold mt-1">成就面板</span>
+      </button>
+
+      <button data-tab="viewLibrary" class="nav-tab flex flex-col items-center justify-center py-1 text-slate-400">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        <span class="text-[9px] font-semibold mt-1">單字庫</span>
+      </button>
+
+      <button data-tab="viewPronunciation" class="nav-tab flex flex-col items-center justify-center py-1 text-slate-400">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z"/></svg>
+        <span class="text-[9px] font-semibold mt-1">發音秘笈</span>
+      </button>
+
+      <button data-tab="viewSettings" class="nav-tab flex flex-col items-center justify-center py-1 text-slate-400">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>
+        <span class="text-[9px] font-semibold mt-1">單字同步</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ================= MODAL: ADD / EDIT WORD ================= -->
+  <div id="modalWord" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl safe-bottom max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3.5">
+        <h3 id="modalTitle" class="text-base font-bold text-slate-800">新增德文學習單字</h3>
+        <button id="btnCloseModal" class="p-1 rounded-full text-slate-400 hover:text-slate-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form id="formWord" class="space-y-3.5">
+        <input type="hidden" id="inputWordId">
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">所屬領域 *</label>
+            <select id="selectDomain" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-medium focus:ring-2 focus:ring-blue-500">
+              <option value="daily">☕ 日常生活</option>
+              <option value="food">🍽️ 飲食餐飲</option>
+              <option value="travel">✈️ 交通旅遊</option>
+              <option value="social">👥 人際家庭</option>
+              <option value="immigration">🏛️ 居留市政</option>
+              <option value="work">💼 職場進修</option>
+              <option value="health">🏥 健康醫療</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">難度等級 (CEFR) *</label>
+            <select id="selectLevel" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-medium focus:ring-2 focus:ring-blue-500">
+              <option value="A1">A1 入門基礎</option>
+              <option value="A2">A2 初級溝通</option>
+              <option value="B1" selected>B1 移民進階</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">詞性 / 冠詞 *</label>
+          <div class="grid grid-cols-4 gap-1.5">
+            <label class="cursor-pointer">
+              <input type="radio" name="gender" value="der" class="peer sr-only" checked>
+              <div class="py-1.5 text-center text-xs font-bold rounded-xl border border-blue-200 text-blue-600 peer-checked:bg-der peer-checked:text-white transition">der (陽性)</div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="gender" value="die" class="peer sr-only">
+              <div class="py-1.5 text-center text-xs font-bold rounded-xl border border-red-200 text-red-600 peer-checked:bg-die peer-checked:text-white transition">die (陰性)</div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="gender" value="das" class="peer sr-only">
+              <div class="py-1.5 text-center text-xs font-bold rounded-xl border border-green-200 text-green-600 peer-checked:bg-das peer-checked:text-white transition">das (中性)</div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="gender" value="none" class="peer sr-only">
+              <div class="py-1.5 text-center text-xs font-bold rounded-xl border border-purple-200 text-purple-600 peer-checked:bg-verb peer-checked:text-white transition">動詞/其他</div>
+            </label>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">德文單字 *</label>
+            <input id="inputGerman" type="text" placeholder="例：Kaffee" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">複數形態 (Plural)</label>
+            <input id="inputPlural" type="text" placeholder="例：die Kaffees" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">中文釋義 *</label>
+          <input id="inputMeaning" type="text" placeholder="例：咖啡" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div class="space-y-1.5">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">德文例句</label>
+            <input id="inputExample" type="text" placeholder="例：Ich trinke gerne Kaffee." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">例句中文翻譯</label>
+            <input id="inputExampleZh" type="text" placeholder="例：我喜歡喝咖啡。" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+
+        <div class="pt-2">
+          <button type="submit" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl text-sm shadow-md active:scale-95 transition">
+            儲存單字
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= TOAST NOTIFICATION ================= -->
+  <div id="toast" class="fixed top-16 left-1/2 transform -translate-x-1/2 bg-slate-900/90 backdrop-blur-md text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-xl transition-all duration-300 opacity-0 pointer-events-none z-50 flex items-center space-x-2">
+    <span id="toastIcon">✨</span>
+    <span id="toastMsg">通知訊息</span>
+  </div>
+
+  <!-- ================= JAVASCRIPT CORE ================= -->
+  <script>
+    const BUILTIN_100_PACK = [{"id": "v1", "word": "arbeiten", "gender": "none", "plural": "arbeitet / hat gearbeitet", "meaning": "工作", "phonetic": "[ˈaʁbaɪ̯tn̩]", "domain": "work", "theme": "41. 辦公室日常與工作", "level": "A1", "example": "Ich arbeite von Montag bis Freitag.", "exampleZh": "我週一到週五工作。", "note": "常規弱變化動詞。"}, {"id": "v2", "word": "kaufen", "gender": "none", "plural": "kauft / hat gekauft", "meaning": "購買 / 買", "phonetic": "[ˈkaʊ̯fn̩]", "domain": "daily", "theme": "9. 超市採購與食材", "level": "A1", "example": "Wo kann man hier frisches Brot kaufen?", "exampleZh": "這裡哪裡可以買到新鮮麵包？", "note": "及物動詞，接 Akkusativ。"}, {"id": "v3", "word": "anrufen", "gender": "none", "plural": "ruft an / hat angerufen", "meaning": "打電話給", "phonetic": "[ˈanˌʁuːfn̩]", "domain": "daily", "theme": "2. 時間與日程約定", "level": "A1", "example": "Ich rufe dich heute Abend an.", "exampleZh": "我今晚打電話給你。", "note": "分離動詞：an- 移到句尾；接 Akkusativ。"}, {"id": "v4", "word": "einkaufen", "gender": "none", "plural": "kauft ein / hat eingekauft", "meaning": "採買購物", "phonetic": "[ˈaɪ̯nˌkaʊ̯fn̩]", "domain": "daily", "theme": "9. 超市採購與食材", "level": "A1", "example": "Samstags kaufe ich im Supermarkt ein.", "exampleZh": "我週六在超市大採買。", "note": "分離動詞：ein- 移到句末。"}, {"id": "v5", "word": "verstehen", "gender": "none", "plural": "versteht / hat verstanden", "meaning": "理解 / 聽懂", "phonetic": "[fɛɐ̯ˈʃteːən]", "domain": "daily", "theme": "29. 溝通交流與禮儀", "level": "A1", "example": "Ich verstehe diesen Satz leider nicht.", "exampleZh": "這句話我很遺憾聽不懂。", "note": "不可分離前綴 ver-；不規則完成式。"}, {"id": "v6", "word": "fragen", "gender": "none", "plural": "fragt / hat gefragt", "meaning": "詢問 / 發問", "phonetic": "[ˈfʁaːɡn̩]", "domain": "daily", "theme": "20. 問路與方向辨識", "level": "A1", "example": "Darf ich Sie etwas fragen?", "exampleZh": "我可以請教您一件事嗎？", "note": "接人為 Akkusativ。"}, {"id": "v7", "word": "antworten", "gender": "none", "plural": "antwortet / hat geantwortet", "meaning": "回答", "phonetic": "[ˈantˌvɔʁtn̩]", "domain": "daily", "theme": "29. 溝通交流與禮儀", "level": "A1", "example": "Bitte antworten Sie mir so bald wie möglich.", "exampleZh": "請儘速回覆我。", "note": "回答某人時接 Dativ (auf+Akk)。"}, {"id": "v8", "word": "helfen", "gender": "none", "plural": "hilft / hat geholfen", "meaning": "幫助 / 協助", "phonetic": "[ˈhɛlfn̩]", "domain": "social", "theme": "25. 朋友社交與聚會", "level": "A1", "example": "Können Sie mir bitte helfen?", "exampleZh": "您可以幫我一下嗎？", "note": "重要不規則：母音換音 e->i；必接 Dativ (mir/dir)！"}, {"id": "v9", "word": "finden", "gender": "none", "plural": "findet / hat gefunden", "meaning": "找到 / 覺得", "phonetic": "[ˈfɪndn̩]", "domain": "daily", "theme": "20. 問路與方向辨識", "level": "A1", "example": "Ich finde meinen Schlüssel nicht.", "exampleZh": "我找不到我的鑰匙。", "note": "母音換音 i->a->u。"}, {"id": "v10", "word": "warten", "gender": "none", "plural": "wartet / hat gewartet", "meaning": "等待", "phonetic": "[ˈvaʁtn̩]", "domain": "travel", "theme": "16. 市區公共交通", "level": "A1", "example": "Wir warten seit 15 Minuten auf den Bus.", "exampleZh": "我們等公車已經等了 15 分鐘。", "note": "固定介系詞搭配：warten auf + Akkusativ。"}, {"id": "v11", "word": "reisen", "gender": "none", "plural": "reist / ist gereist", "meaning": "旅行", "phonetic": "[ˈʁaɪ̯zn̩]", "domain": "travel", "theme": "17. 長途鐵路與旅行", "level": "A1", "example": "Ich reise sehr gerne nach Deutschland.", "exampleZh": "我非常喜歡到德國旅行。", "note": "移動動詞，完成式助動詞用 sein！"}, {"id": "v12", "word": "wohnen", "gender": "none", "plural": "wohnt / hat gewohnt", "meaning": "居住", "phonetic": "[ˈvoːnən]", "domain": "daily", "theme": "3. 居家環境與物品", "level": "A1", "example": "Ich wohne in einer gemütlichen Wohnung.", "exampleZh": "我住在一間溫馨的公寓裡。", "note": "h 不發音，代表前面 o 為長音。"}, {"id": "v13", "word": "bezahlen", "gender": "none", "plural": "bezahlt / hat bezahlt", "meaning": "付款 / 結帳", "phonetic": "[bəˈt͡saːlən]", "domain": "food", "theme": "12. 餐廳點餐與結帳", "level": "A1", "example": "Kann ich mit Karte bezahlen?", "exampleZh": "我可以刷卡結帳嗎？", "note": "z 發 [ts]；不可分離前綴 be-。"}, {"id": "v14", "word": "bestellen", "gender": "none", "plural": "bestellt / hat bestellt", "meaning": "點餐 / 訂購", "phonetic": "[bəˈʃtɛlən]", "domain": "food", "theme": "12. 餐廳點餐與結帳", "level": "A1", "example": "Wir möchten gerne bestellen.", "exampleZh": "我們想要點餐了。", "note": "st 發 [ʃt]；外食必備。"}, {"id": "v15", "word": "vereinbaren", "gender": "none", "plural": "vereinbart / hat vereinbart", "meaning": "約定 / 達成協議", "phonetic": "[fɛɐ̯ˈʔaɪ̯nbaːʁən]", "domain": "daily", "theme": "2. 時間與日程約定", "level": "A2", "example": "Ich möchte einen Termin vereinbaren.", "exampleZh": "我想預約一個時間。", "note": "生活高頻片語：einen Termin vereinbaren。"}, {"id": "v16", "word": "überweisen", "gender": "none", "plural": "überweist / hat überwiesen", "meaning": "銀行轉帳", "phonetic": "[yːbɐˈvaɪ̯zn̩]", "domain": "immigration", "theme": "36. 銀行開戶與扣款", "level": "A2", "example": "Ich überweise die Miete pünktlich jeden Monat.", "exampleZh": "我每個月都準時轉帳房租。", "note": "德意志生活交房租必用詞彙。"}, {"id": "v17", "word": "kündigen", "gender": "none", "plural": "kündigt / hat gekündigt", "meaning": "解除契約 / 辭職", "phonetic": "[ˈkʏndɪɡn̩]", "domain": "work", "theme": "43. 勞工合約與工時", "level": "B1", "example": "Ich habe meinen alten Vertrag fristgerecht gekündigt.", "exampleZh": "我已在期限內如期終止了舊合約。", "note": "ü 圓唇音；可用於租約、工作或電信約。"}, {"id": "v18", "word": "unterschreiben", "gender": "none", "plural": "unterschreibt / hat unterschrieben", "meaning": "簽名 / 簽署", "phonetic": "[ˌʊntɐˈʃʁaɪ̯bn̩]", "domain": "immigration", "theme": "34. 房屋租約與押金", "level": "B1", "example": "Bitte unterschreiben Sie hier unten rechts.", "exampleZh": "請在右下方此處親筆簽名。", "note": "不可分離動詞；schreiben 母音換音 ei->ie。"}, {"id": "v19", "word": "beantragen", "gender": "none", "plural": "beantragt / hat beantragt", "meaning": "提出正式申請", "phonetic": "[bəˈʔanˌtʁaːɡn̩]", "domain": "immigration", "theme": "32. 外事局與簽證居留", "level": "B1", "example": "Ich möchte einen neuen Pass beantragen.", "exampleZh": "我想要申請一本新護照。", "note": "移民局與公家機關標準用語。"}, {"id": "v20", "word": "verlängern", "gender": "none", "plural": "verlängert / hat verlängert", "meaning": "延長 / 續約", "phonetic": "[fɛɐ̯ˈlɛŋɐn]", "domain": "immigration", "theme": "32. 外事局與簽證居留", "level": "B1", "example": "Mein Visum muss verlängert werden.", "exampleZh": "我的簽證需要辦理展延。", "note": "a 變音為 ä [ɛ]。"}, {"id": "v21", "word": "teilnehmen", "gender": "none", "plural": "nimmt teil / hat teilgenommen", "meaning": "參加 / 參與", "phonetic": "[ˈtaɪ̯lˌneːmən]", "domain": "work", "theme": "41. 辦公室日常與會議", "level": "B1", "example": "Ich nehme an der heutigen Besprechung teil.", "exampleZh": "我會參加今天的會議。", "note": "分離動詞；固定搭配：teilnehmen an + Dativ。"}, {"id": "v22", "word": "einladen", "gender": "none", "plural": "lädt ein / hat eingeladen", "meaning": "邀請", "phonetic": "[ˈaɪ̯nˌlaːdn̩]", "domain": "social", "theme": "25. 朋友社交與聚會", "level": "A2", "example": "Darf ich dich zum Abendessen einladen?", "exampleZh": "我可以請你吃晚餐嗎？", "note": "分離動詞；單數換音 a->ä。"}, {"id": "v23", "word": "mitbringen", "gender": "none", "plural": "bringt mit / hat mitgebracht", "meaning": "隨身帶來 / 攜帶", "phonetic": "[ˈmɪtˌbʁɪŋən]", "domain": "social", "theme": "25. 朋友社交與聚會", "level": "A1", "example": "Soll ich etwas zu trinken mitbringen?", "exampleZh": "需要我順便帶點喝的過來嗎？", "note": "分離動詞；不規則完成式 mitgebracht。"}, {"id": "v24", "word": "funktionieren", "gender": "none", "plural": "funktioniert / hat funktioniert", "meaning": "運轉 / 起作用", "phonetic": "[fʊŋkt͡si̯oˈniːʁən]", "domain": "daily", "theme": "3. 居家環境與物品", "level": "A2", "example": "Die Heizung funktioniert leider nicht.", "exampleZh": "暖氣很遺憾故障不會熱了。", "note": "重音在 nie；外來動詞過去分詞不加 ge-。"}, {"id": "v25", "word": "reparieren", "gender": "none", "plural": "repariert / hat repariert", "meaning": "修理 / 檢修", "phonetic": "[ʁepaˈʁiːʁən]", "domain": "daily", "theme": "3. 居家環境與物品", "level": "A2", "example": "Können Sie die Waschmaschine reparieren?", "exampleZh": "您可以幫忙修理這台洗衣機嗎？", "note": "-ieren 結尾動詞完成式為 repariert。"}, {"id": "d1", "word": "Schlüssel", "gender": "der", "plural": "die Schlüssel", "meaning": "鑰匙", "phonetic": "[ˈʃlʏsl̩]", "domain": "daily", "theme": "3. 居家環境與物品", "level": "A1", "example": "Ich habe meinen Schlüssel vergessen.", "exampleZh": "我忘記帶鑰匙了。", "note": "ü 是短圓唇音；複數形態同單數。"}, {"id": "d2", "word": "Tür", "gender": "die", "plural": "die Türen", "meaning": "門", "phonetic": "[tyːɐ̯]", "domain": "daily", "theme": "3. 居家環境與物品", "level": "A1", "example": "Bitte schließen Sie die Tür leise.", "exampleZh": "請輕聲關門。", "note": "ü 是長母音。"}, {"id": "d3", "word": "Fenster", "gender": "das", "plural": "die Fenster", "meaning": "窗戶", "phonetic": "[ˈfɛnstɐ]", "domain": "daily", "theme": "3. 居家環境與物品", "level": "A1", "example": "Machen wir kurz das Fenster auf zum Lüften.", "exampleZh": "我們開窗通風換氣一下。", "note": "Lüften (開窗通風) 是德國生活文化。"}, {"id": "d4", "word": "Handy", "gender": "das", "plural": "die Handys", "meaning": "智慧型手機", "phonetic": "[ˈhɛndi]", "domain": "daily", "theme": "3. 居家環境與物品", "level": "A1", "example": "Mein Handy-Akku ist leider fast leer.", "exampleZh": "我的手機電量快耗盡了。", "note": "德文特有英來詞，在德國手機叫 das Handy。"}, {"id": "d5", "word": "Schrank", "gender": "der", "plural": "die Schränke", "meaning": "衣櫃 / 櫃子", "phonetic": "[ʃʁaŋk]", "domain": "daily", "theme": "3. 居家環境與物品", "level": "A1", "example": "Die Gläser stehen oben im Schrank.", "exampleZh": "杯子放在上面的櫃子裡。", "note": "複數 a 變音為 ä。"}, {"id": "d6", "word": "Bett", "gender": "das", "plural": "die Betten", "meaning": "床舖", "phonetic": "[bɛt]", "domain": "daily", "theme": "3. 居家環境與物品", "level": "A1", "example": "Ich gehe heute früher ins Bett.", "exampleZh": "我今天打算早點上床睡覺。", "note": "短母音 e。"}, {"id": "d7", "word": "Stuhl", "gender": "der", "plural": "die Stühle", "meaning": "椅子", "phonetic": "[ʃtuːl]", "domain": "daily", "theme": "3. 居家環境與物品", "level": "A1", "example": "Ist dieser Stuhl hier noch frei?", "exampleZh": "這張椅子還有人坐嗎？", "note": "st 發 [ʃt]；u 變音為 ü。"}, {"id": "d8", "word": "Tisch", "gender": "der", "plural": "die Tische", "meaning": "桌子", "phonetic": "[tɪʃ]", "domain": "daily", "theme": "3. 居家環境與物品", "level": "A1", "example": "Wir sitzen alle zusammen am Tisch.", "exampleZh": "我們大家一起圍坐在桌子旁。", "note": "sch 發噓聲 [ʃ]。"}, {"id": "d9", "word": "Uhr", "gender": "die", "plural": "die Uhren", "meaning": "手錶 / 點鐘", "phonetic": "[uːɐ̯]", "domain": "daily", "theme": "2. 時間與日程約定", "level": "A1", "example": "Wie viel Uhr ist es jetzt?", "exampleZh": "現在幾點鐘了？", "note": "h 延長前音 u。"}, {"id": "d10", "word": "Brille", "gender": "die", "plural": "die Brillen", "meaning": "眼鏡", "phonetic": "[ˈbʁɪlə]", "domain": "daily", "theme": "5. 服飾與配件", "level": "A1", "example": "Ohne meine Brille kann ich nicht gut lesen.", "exampleZh": "沒有眼鏡我就看不清楚字。", "note": "雙 l 發短清音。"}, {"id": "d11", "word": "Licht", "gender": "das", "plural": "die Lichter", "meaning": "燈光 / 光線", "phonetic": "[lɪçt]", "domain": "daily", "theme": "3. 居家環境與物品", "level": "A1", "example": "Mach bitte das Licht an, es ist dunkel.", "exampleZh": "請開燈，房間太暗了。", "note": "ch 在 i 後面發貓嘶聲 Ich-Laut [ç]。"}, {"id": "d12", "word": "Tasche", "gender": "die", "plural": "die Taschen", "meaning": "包包 / 手提袋", "phonetic": "[ˈtaʃə]", "domain": "daily", "theme": "5. 服飾與配件", "level": "A1", "example": "Ich habe eine Tasche für den Einkauf mitgebracht.", "exampleZh": "我帶了一個購物袋來裝東西。", "note": "sch 唸 [ʃ]。"}, {"id": "d13", "word": "Regenschirm", "gender": "der", "plural": "die Regenschirme", "meaning": "雨傘", "phonetic": "[ˈʁeːɡn̩ˌʃɪʁm]", "domain": "daily", "theme": "5. 服飾與配件", "level": "A1", "example": "Nimm einen Regenschirm mit, es regnet gleich.", "exampleZh": "帶把雨傘出門，待會要下雨了。", "note": "複合字：Regen (雨) + Schirm (傘/幕)。"}, {"id": "d14", "word": "Nachmittag", "gender": "der", "plural": "die Nachmittage", "meaning": "下午", "phonetic": "[ˈnaːxmɪˌtaːk]", "domain": "daily", "theme": "2. 時間與日程約定", "level": "A1", "example": "Wir treffen uns heute Nachmittag um drei.", "exampleZh": "我們今天下午三點碰面。", "note": "複合字：nach + Mittag。"}, {"id": "d15", "word": "Wochenende", "gender": "das", "plural": "die Wochenenden", "meaning": "週末", "phonetic": "[ˈvɔxn̩ˌʔɛndə]", "domain": "daily", "theme": "2. 時間與日程約定", "level": "A1", "example": "Schönes Wochenende!", "exampleZh": "祝你週末愉快！", "note": "德國週五道別最常用祝詞。"}, {"id": "f1", "word": "Brot", "gender": "das", "plural": "die Brote", "meaning": "麵包", "phonetic": "[bʁoːt]", "domain": "food", "theme": "9. 超市採購與食材", "level": "A1", "example": "Deutsches Brot ist weltberühmt.", "exampleZh": "德國麵包享譽全球。", "note": "長母音 o。"}, {"id": "f2", "word": "Brötchen", "gender": "das", "plural": "die Brötchen", "meaning": "小圓麵包", "phonetic": "[ˈbʁøːtçn̩]", "domain": "food", "theme": "13. 咖啡廳與烘焙甜點", "level": "A1", "example": "Zum Frühstück esse ich zwei Brötchen.", "exampleZh": "我早餐吃兩個小圓麵包。", "note": "中性後綴 -chen；ö 圓唇音 + ch [ç]。"}, {"id": "f3", "word": "Milch", "gender": "die", "plural": "-", "meaning": "牛奶", "phonetic": "[mɪlç]", "domain": "food", "theme": "11. 肉類與乳製品", "level": "A1", "example": "Möchtest du Milch in deinen Kaffee?", "exampleZh": "你的咖啡要加牛奶嗎？", "note": "ch 發貓嘶聲 Ich-Laut [ç]。"}, {"id": "f4", "word": "Käse", "gender": "der", "plural": "die Käse", "meaning": "起司 / 乳酪", "phonetic": "[ˈkɛːzə]", "domain": "food", "theme": "11. 肉類與乳製品", "level": "A1", "example": "Ich esse gerne Käse zum Frühstück.", "exampleZh": "我早餐喜歡搭配起司吃。", "note": "ä 開口母音；s 發濁音 [z]。"}, {"id": "f5", "word": "Ei", "gender": "das", "plural": "die Eier", "meaning": "雞蛋", "phonetic": "[aɪ̯]", "domain": "food", "theme": "9. 超市採購與食材", "level": "A1", "example": "Ein gekochtes Ei gehört zum Frühstück.", "exampleZh": "一顆水煮蛋是早餐必備。", "note": "複數 die Eier；ei 讀 [aɪ̯]。"}, {"id": "f6", "word": "Reis", "gender": "der", "plural": "-", "meaning": "米飯 / 白米", "phonetic": "[ʁaɪ̯s]", "domain": "food", "theme": "9. 超市採購與食材", "level": "A1", "example": "Zu diesem Gericht passt weißer Reis.", "exampleZh": "這道菜搭配白飯很對味。", "note": "尾音 s 發清脆音。"}, {"id": "f7", "word": "Suppe", "gender": "die", "plural": "die Suppen", "meaning": "湯品 / 濃湯", "phonetic": "[ˈzʊpə]", "domain": "food", "theme": "12. 餐廳點餐與結帳", "level": "A1", "example": "Als Vorspeise nehme ich eine warme Suppe.", "exampleZh": "開胃前菜我點一份熱湯。", "note": "雙 p 促使 u 發短促音。"}, {"id": "f8", "word": "Tee", "gender": "der", "plural": "die Tees", "meaning": "茶水", "phonetic": "[teː]", "domain": "food", "theme": "13. 咖啡廳與烘焙甜點", "level": "A1", "example": "Eine Tasse heißer Pfefferminztee, bitte.", "exampleZh": "請給我一杯熱薄荷茶。", "note": "雙 e 讀長母音 [eː]。"}, {"id": "f9", "word": "Bier", "gender": "das", "plural": "die Biere", "meaning": "啤酒", "phonetic": "[biːɐ̯]", "domain": "food", "theme": "12. 餐廳點餐與結帳", "level": "A1", "example": "Ein Glas helles Bier vom Fass, bitte!", "exampleZh": "請給我一杯生啤酒！", "note": "ie 讀長音 [iː]。"}, {"id": "f10", "word": "Wein", "gender": "der", "plural": "die Weine", "meaning": "葡萄酒 / 紅酒", "phonetic": "[vaɪ̯n]", "domain": "food", "theme": "12. 餐廳點餐與結帳", "level": "A1", "example": "Trinken Sie lieber Rotwein oder Weißwein?", "exampleZh": "您比較喜歡喝紅酒還是白酒？", "note": "w 咬下唇發 [v]。"}, {"id": "f11", "word": "Salz", "gender": "das", "plural": "die Salze", "meaning": "食鹽 / 鹽巴", "phonetic": "[zalt͡s]", "domain": "food", "theme": "14. 烹飪方式與廚具", "level": "A1", "example": "Könnten Sie mir bitte das Salz reichen?", "exampleZh": "可以請您把鹽巴遞給我嗎？", "note": "z 發 [ts] 音。"}, {"id": "f12", "word": "Zucker", "gender": "der", "plural": "-", "meaning": "砂糖 / 糖", "phonetic": "[ˈt͡sʊkɐ]", "domain": "food", "theme": "13. 咖啡廳與烘焙甜點", "level": "A1", "example": "Ich trinke Kaffee ohne Zucker.", "exampleZh": "我喝咖啡不加糖。", "note": "z 發 [ts]；ck 讀 [k]。"}, {"id": "t1", "word": "Reisepass", "gender": "der", "plural": "die Reisepässe", "meaning": "護照", "phonetic": "[ˈʁaɪ̯zəˌpas]", "domain": "travel", "theme": "18. 機場登機與海關", "level": "A1", "example": "Bitte zeigen Sie Ihren Reisepass am Schalter.", "exampleZh": "請在櫃台出示您的護照。", "note": "複合字：Reise + Pass。"}, {"id": "t2", "word": "Flugzeug", "gender": "das", "plural": "die Flugzeuge", "meaning": "飛機", "phonetic": "[ˈfluːkˌt͡sɔɪ̯k]", "domain": "travel", "theme": "18. 機場登機與海關", "level": "A1", "example": "Das Flugzeug landet pünktlich in Frankfurt.", "exampleZh": "飛機準時降落在法蘭克福機場。", "note": "zeug (工具) 系列字皆為中性 das。"}, {"id": "t3", "word": "Bus", "gender": "der", "plural": "die Busse", "meaning": "公車 / 巴士", "phonetic": "[bʊs]", "domain": "travel", "theme": "16. 市區公共交通", "level": "A1", "example": "Welcher Bus fährt direkt zum Stadtzentrum?", "exampleZh": "哪一路公車直達市中心？", "note": "複數加 -se。"}, {"id": "t4", "word": "U-Bahn", "gender": "die", "plural": "die U-Bahnen", "meaning": "地鐵 / 捷運", "phonetic": "[ˈuːˌbaːn]", "domain": "travel", "theme": "16. 市區公共交通", "level": "A1", "example": "Die U-Bahn kommt alle fünf Minuten.", "exampleZh": "地鐵每五分鐘來一班。", "note": "Untergrundbahn 縮寫，女性 die。"}, {"id": "t5", "word": "Gleis", "gender": "das", "plural": "die Gleise", "meaning": "鐵軌月台", "phonetic": "[ɡlaɪ̯s]", "domain": "travel", "theme": "17. 長途鐵路 (Deutsche Bahn)", "level": "A1", "example": "Der Zug nach Hamburg fährt auf Gleis 4 ein.", "exampleZh": "開往漢堡的列車在第四月台進站。", "note": "搭德鐵廣播最常聽到的詞。"}, {"id": "t6", "word": "Haltestelle", "gender": "die", "plural": "die Haltestellen", "meaning": "站牌停靠站", "phonetic": "[ˈhaltəˌʃtɛlə]", "domain": "travel", "theme": "16. 市區公共交通", "level": "A1", "example": "Die nächste Haltestelle ist Alexanderplatz.", "exampleZh": "下一站是亞歷山大廣場站。", "note": "st 發 [ʃt]；公車上廣播必聽。"}, {"id": "t7", "word": "Ampel", "gender": "die", "plural": "die Ampeln", "meaning": "紅綠燈 / 交通號誌", "phonetic": "[ˈampl̩]", "domain": "travel", "theme": "20. 問路與方向辨識", "level": "A1", "example": "Gehen Sie an der Ampel links.", "exampleZh": "請在紅綠燈路口左轉。", "note": "問路常用指示物。"}, {"id": "t8", "word": "Ausflug", "gender": "der", "plural": "die Ausflüge", "meaning": "郊遊 / 踏青旅行", "phonetic": "[ˈaʊ̯sˌfluːk]", "domain": "travel", "theme": "22. 觀光景點與導覽", "level": "A2", "example": "Am Wochenende machen wir einen Ausflug in die Berge.", "exampleZh": "週末我們要去山裡踏青郊遊。", "note": "複數 u 變音為 ü。"}, {"id": "t9", "word": "Grenze", "gender": "die", "plural": "die Grenzen", "meaning": "邊界 / 國境", "phonetic": "[ˈɡʁɛnt͡sə]", "domain": "travel", "theme": "18. 機場登機與海關", "level": "A2", "example": "An der Grenze gibt es heute keine Passkontrolle.", "exampleZh": "今天邊境沒有護照查驗。", "note": "申根區常識。"}, {"id": "t10", "word": "Koffer", "gender": "der", "plural": "die Koffer", "meaning": "行李箱", "phonetic": "[ˈkɔfɐ]", "domain": "travel", "theme": "18. 機場登機與海關", "level": "A1", "example": "Mein Koffer wiegt genau 20 Kilo.", "exampleZh": "我的行李箱剛好重 20 公斤。", "note": "複數形態同單數。"}, {"id": "t11", "word": "Ticket", "gender": "das", "plural": "die Tickets", "meaning": "票券 / 入場門票", "phonetic": "[ˈtɪkət]", "domain": "travel", "theme": "22. 觀光景點與導覽", "level": "A1", "example": "Ich habe die Tickets online gebucht.", "exampleZh": "我已經在網路上訂好門票了。", "note": "外來詞中性 das。"}, {"id": "t12", "word": "Fahrradweg", "gender": "der", "plural": "die Fahrradwege", "meaning": "自行車專用道", "phonetic": "[ˈfaːɐ̯ʁaːtˌveːk]", "domain": "travel", "theme": "20. 問路與方向辨識", "level": "A2", "example": "Bitte achten Sie auf den Fahrradweg!", "exampleZh": "行人在路上請注意自行車道！", "note": "德國生活極為重視自行車道路權。"}, {"id": "s1", "word": "Mutter", "gender": "die", "plural": "die Mütter", "meaning": "母親 / 媽媽", "phonetic": "[ˈmʊtɐ]", "domain": "social", "theme": "24. 家庭成員與親屬", "level": "A1", "example": "Meine Mutter kocht fantastisch.", "exampleZh": "我媽媽廚藝非常好。", "note": "複數 u 變音為 ü。"}, {"id": "s2", "word": "Vater", "gender": "der", "plural": "die Väter", "meaning": "父親 / 爸爸", "phonetic": "[ˈfaːtɐ]", "domain": "social", "theme": "24. 家庭成員與親屬", "level": "A1", "example": "Mein Vater liest gerne die Zeitung.", "exampleZh": "我爸爸喜歡看報紙。", "note": "v 發 [f]；尾音 -er 輕讀 [ɐ]。"}, {"id": "s3", "word": "Eltern", "gender": "none", "plural": "die Eltern", "meaning": "父母親 (常以複數使用)", "phonetic": "[ˈɛltɐn]", "domain": "social", "theme": "24. 家庭成員與親屬", "level": "A1", "example": "Ich besuche am Wochenende meine Eltern.", "exampleZh": "我週末要回老家探望父母。", "note": "固定複數名詞。"}, {"id": "s4", "word": "Kind", "gender": "das", "plural": "die Kinder", "meaning": "小孩 / 孩子", "phonetic": "[kɪnt]", "domain": "social", "theme": "24. 家庭成員與親屬", "level": "A1", "example": "Die Kinder spielen draußen im Garten.", "exampleZh": "孩子們在戶外花園裡玩耍。", "note": "複數加 -er；尾音 d 讀 t。"}, {"id": "s5", "word": "Schwester", "gender": "die", "plural": "die Schwestern", "meaning": "姐妹", "phonetic": "[ˈʃvɛstɐ]", "domain": "social", "theme": "24. 家庭成員與親屬", "level": "A1", "example": "Meine jüngere Schwester studiert Medizin.", "exampleZh": "我妹妹正在讀醫學院。", "note": "sch 發 [ʃ]。"}, {"id": "s6", "word": "Bruder", "gender": "der", "plural": "die Brüder", "meaning": "兄弟", "phonetic": "[ˈbʁuːdɐ]", "domain": "social", "theme": "24. 家庭成員與親屬", "level": "A1", "example": "Mein älterer Bruder arbeitet in München.", "exampleZh": "我哥哥在慕尼黑工作。", "note": "複數 u 變音為 ü。"}, {"id": "s7", "word": "Einladung", "gender": "die", "plural": "die Einladungen", "meaning": "邀請函 / 邀約", "phonetic": "[ˈaɪ̯nˌlaːdʊŋ]", "domain": "social", "theme": "25. 朋友社交與聚會", "level": "A2", "example": "Vielen Dank für die herzliche Einladung!", "exampleZh": "非常感謝您的熱情邀約！", "note": "-ung 字尾永遠是陰性。"}, {"id": "s8", "word": "Geschenk", "gender": "das", "plural": "die Geschenke", "meaning": "禮物", "phonetic": "[ɡəˈʃɛŋk]", "domain": "social", "theme": "28. 節慶與祝賀禮俗", "level": "A1", "example": "Das ist ein schönes Geschenk für dich.", "exampleZh": "這是送給你的一份精美禮物。", "note": "中性 das。"}, {"id": "s9", "word": "Party", "gender": "die", "plural": "die Partys", "meaning": "派對 / 聚會", "phonetic": "[ˈpaːɐ̯ti]", "domain": "social", "theme": "25. 朋友社交與聚會", "level": "A1", "example": "Kommst du morgen zu meiner Geburtstagsfeier?", "exampleZh": "你明天要來參加我的生日聚會嗎？", "note": "陰性 die。"}, {"id": "s10", "word": "Hochzeit", "gender": "die", "plural": "die Hochzeiten", "meaning": "婚禮", "phonetic": "[ˈhɔxˌt͡saɪ̯t]", "domain": "social", "theme": "28. 節慶與祝賀禮俗", "level": "A2", "example": "Wir sind nächsten Monat zu einer Hochzeit eingeladen.", "exampleZh": "我們下個月受邀參加一場婚禮。", "note": "ch 在 o 後為喉音 [x]；z 讀 [ts]。"}, {"id": "i1", "word": "Formular", "gender": "das", "plural": "die Formulare", "meaning": "申請表格", "phonetic": "[fɔʁmuˈlaːɐ̯]", "domain": "immigration", "theme": "31. 市民局登記 (Bürgeramt)", "level": "A2", "example": "Füllen Sie bitte dieses Formular vollständig aus.", "exampleZh": "請將這份申請表格完整填寫好。", "note": "公家機關最常見字眼。"}, {"id": "i2", "word": "Bescheinigung", "gender": "die", "plural": "die Bescheinigungen", "meaning": "正式證明文件", "phonetic": "[bəˈʃaɪ̯nɪɡʊŋ]", "domain": "immigration", "theme": "31. 市民局登記 (Bürgeramt)", "level": "B1", "example": "Ich brauche eine Anmeldebescheinigung vom Bürgeramt.", "exampleZh": "我需要市民局開立的入籍戶籍證明。", "note": "例如 Wohnungsgeberbestätigung 房東證明。"}, {"id": "i3", "word": "Pass", "gender": "der", "plural": "die Pässe", "meaning": "護照證件", "phonetic": "[pas]", "domain": "immigration", "theme": "32. 外事局與簽證居留", "level": "A1", "example": "Halten Sie Ihren Pass bereit.", "exampleZh": "請備妥您的護照以供查驗。", "note": "複數 a 變音為 ä。"}, {"id": "i4", "word": "Staatsangehörigkeit", "gender": "die", "plural": "die Staatsangehörigkeiten", "meaning": "國籍", "phonetic": "[ˈʃtaːtsʔanɡəˌhøːʁɪçkaɪ̯t]", "domain": "immigration", "theme": "32. 外事局與簽證居留", "level": "B1", "example": "Welche Staatsangehörigkeit besitzen Sie?", "exampleZh": "您具備哪一國國籍？", "note": "表格必填欄位；-keit 結尾為陰性。"}, {"id": "i5", "word": "Bürgeramt", "gender": "das", "plural": "die Bürgerämter", "meaning": "市民服務局", "phonetic": "[ˈbʏʁɡɐˌʔamt]", "domain": "immigration", "theme": "31. 市民局登記 (Bürgeramt)", "level": "B1", "example": "Einen Termin beim Bürgeramt muss man frühzeitig buchen.", "exampleZh": "市民局的預約必須提前很久搶號。", "note": "Bürger (市民) + Amt (政府部門)。"}, {"id": "i6", "word": "Warmmiete", "gender": "die", "plural": "die Warmmieten", "meaning": "暖租 (含水暖物業雜費)", "phonetic": "[ˈvaʁmˌmiːtə]", "domain": "immigration", "theme": "34. 房屋租約與押金", "level": "B1", "example": "Die Warmmiete beträgt 850 Euro im Monat.", "exampleZh": "暖租每個月總計為 850 歐元。", "note": "德國租屋核心概念，包含預收雜費。"}, {"id": "i7", "word": "Kaltmiete", "gender": "die", "plural": "die Kaltmieten", "meaning": "冷租 (純房租不含暖水)", "phonetic": "[ˈkaltˌmiːtə]", "domain": "immigration", "theme": "34. 房屋租約與押金", "level": "B1", "example": "Die Kaltmiete ist der Grundpreis ohne Nebenkosten.", "exampleZh": "冷租是指不含水暖雜費的純房租基價。", "note": "押金通常按冷租計算。"}, {"id": "i8", "word": "Nebenkosten", "gender": "none", "plural": "die Nebenkosten", "meaning": "附加費 / 水電雜費 (複數)", "phonetic": "[ˈneːbn̩ˌkɔstn̩]", "domain": "immigration", "theme": "35. 雜費、暖氣與電費", "level": "B1", "example": "Am Jahresende gibt es eine Abrechnung der Nebenkosten.", "exampleZh": "每年底房東會進行水電暖氣雜費結算。", "note": "固定以複數形式出現。"}, {"id": "i9", "word": "Bankkonto", "gender": "das", "plural": "die Bankkonten", "meaning": "銀行帳戶", "phonetic": "[ˈbaŋkˌkɔnto]", "domain": "immigration", "theme": "36. 銀行開戶與扣款", "level": "A2", "example": "Ich möchte ein Girokonto bei Ihrer Bank eröffnen.", "exampleZh": "我想在貴行開立一個日常活期帳戶。", "note": "Girokonto 為薪轉活期帳戶。"}, {"id": "i10", "word": "IBAN", "gender": "die", "plural": "die IBANs", "meaning": "國際銀行帳號", "phonetic": "[ˈiːban]", "domain": "immigration", "theme": "36. 銀行開戶與扣款", "level": "A2", "example": "Geben Sie bitte Ihre 22-stellige deutsche IBAN an.", "exampleZh": "請提供您以 DE 開頭的 22 碼德國銀行帳號。", "note": "在歐洲轉帳扣款必備。"}, {"id": "i11", "word": "Versicherung", "gender": "die", "plural": "die Versicherungen", "meaning": "保險", "phonetic": "[fɛɐ̯ˈzɪçəʁʊŋ]", "domain": "immigration", "theme": "37. 健保與個人責任險", "level": "A2", "example": "Eine Privathaftpflichtversicherung ist sehr empfehlenswert.", "exampleZh": "在德國非常強烈建議投保個人第三責任險。", "note": "-ung 字尾為陰性。"}, {"id": "i12", "word": "Steuer", "gender": "die", "plural": "die Steuern", "meaning": "稅款 / 稅金", "phonetic": "[ˈʃtɔɪ̯ɐ]", "domain": "immigration", "theme": "31. 市民局登記 (Bürgeramt)", "level": "B1", "example": "Jeder Arbeitnehmer erhält eine Steuer-Identifikationsnummer.", "exampleZh": "每位受僱勞工入籍後皆會收到個人稅號。", "note": "Steuer-ID 報稅工作必備。"}, {"id": "i13", "word": "Unterschrift", "gender": "die", "plural": "die Unterschriften", "meaning": "親筆簽名", "phonetic": "[ˈʊntɐˌʃʁɪft]", "domain": "immigration", "theme": "34. 房屋租約與押金", "level": "A2", "example": "Hier fehlt noch Ihre Unterschrift.", "exampleZh": "這裡還缺少您的親筆簽名。", "note": "下方的字跡；unter + Schrift。"}, {"id": "i14", "word": "Vermieter", "gender": "der", "plural": "die Vermieter", "meaning": "房東 / 出租人", "phonetic": "[fɛɐ̯ˈmiːtɐ]", "domain": "immigration", "theme": "34. 房屋租約與押金", "level": "A2", "example": "Der Vermieter hat die Reparatur genehmigt.", "exampleZh": "房東已經核准由他負責這筆修繕。", "note": "女房東為 die Vermieterin。"}, {"id": "w1", "word": "Beruf", "gender": "der", "plural": "die Berufe", "meaning": "職業 / 行業", "phonetic": "[bəˈʁuːf]", "domain": "work", "theme": "38. 求職管道與應徵信", "level": "A1", "example": "Was sind Sie von Beruf?", "exampleZh": "您的本業是從事什麼行業？", "note": "固定句型問職業。"}, {"id": "w2", "word": "Stelle", "gender": "die", "plural": "die Stellen", "meaning": "職位 / 職缺", "phonetic": "[ˈʃtɛlə]", "domain": "work", "theme": "38. 求職管道與應徵信", "level": "A2", "example": "Ich bewerbe mich um diese offene Stelle.", "exampleZh": "我正在應徵這個開放的職位。", "note": "st 發 [ʃt]。"}, {"id": "w3", "word": "Gehalt", "gender": "das", "plural": "die Gehälter", "meaning": "薪水 / 月薪薪資", "phonetic": "[ɡəˈhalt]", "domain": "work", "theme": "43. 勞工合約與工時", "level": "B1", "example": "Das Gehalt wird am Monatsende überwiesen.", "exampleZh": "薪資會在每個月底轉帳發放。", "note": "複數 a 變音為 ä [ɛ]。"}, {"id": "w4", "word": "Chef", "gender": "der", "plural": "die Chefs", "meaning": "男主管 / 男老闆", "phonetic": "[ʃɛf]", "domain": "work", "theme": "41. 辦公室日常與會議", "level": "A1", "example": "Mein Chef ist heute auf Dienstreise.", "exampleZh": "我的主管今天出差公幹去了。", "note": "來自法語外來詞，ch 讀 [ʃ]。"}, {"id": "w5", "word": "Chefin", "gender": "die", "plural": "die Chefinnen", "meaning": "女主管 / 女老闆", "phonetic": "[ˈʃɛfɪn]", "domain": "work", "theme": "41. 辦公室日常與會議", "level": "A1", "example": "Ich habe morgen ein Gespräch mit meiner Chefin.", "exampleZh": "我明天要和我的女主管進行面談。", "note": "職業陰性加 -in。"}, {"id": "w6", "word": "Praktikum", "gender": "das", "plural": "die Praktika", "meaning": "企業實習", "phonetic": "[ˈpʁaktikʊm]", "domain": "work", "theme": "44. 大學教育與職業培訓", "level": "A2", "example": "Während des Studiums mache ich ein sechsmonatiges Praktikum.", "exampleZh": "求學期間我做了一次為期六個月的實習。", "note": "複數拉丁文變化為 die Praktika。"}, {"id": "w7", "word": "Vertrag", "gender": "der", "plural": "die Verträge", "meaning": "合約 / 契約", "phonetic": "[fɛɐ̯ˈtʁaːk]", "domain": "work", "theme": "43. 勞工合約與工時", "level": "A2", "example": "Haben Sie den Vertrag schon unterschrieben?", "exampleZh": "您已經在合約上簽名了嗎？", "note": "複數 a 變音為 ä。"}, {"id": "w8", "word": "Ausbildung", "gender": "die", "plural": "die Ausbildungen", "meaning": "雙軌技職培訓 / 職業教育", "phonetic": "[ˈaʊ̯sˌbɪldʊŋ]", "domain": "work", "theme": "44. 大學教育與職業培訓", "level": "B1", "example": "In Deutschland machen viele nach der Schule eine Ausbildung.", "exampleZh": "在德國許多人中學畢業後會選擇雙軌技職培訓。", "note": "德國核心教育特色。"}, {"id": "w9", "word": "Zeugnis", "gender": "das", "plural": "die Zeugnisse", "meaning": "成績單 / 工作證明信", "phonetic": "[ˈt͡sɔɪ̯knɪs]", "domain": "work", "theme": "39. 德式簡歷撰寫", "level": "B1", "example": "Ein Arbeitszeugnis ist wichtig für den nächsten Job.", "exampleZh": "前主管開立的工作證明信對下一份求職極重要。", "note": "中性 das；Arbeitszeugnis 為離職工作評鑑。"}, {"id": "w10", "word": "Überstunde", "gender": "die", "plural": "die Überstunden", "meaning": "加班時數", "phonetic": "[ˈyːbɐˌʃtʊndə]", "domain": "work", "theme": "43. 勞工合約與工時", "level": "B1", "example": "Alle Überstunden werden extra vergütet oder abgebummelt.", "exampleZh": "所有加班時數皆可領加班費或申請補休。", "note": "ü 圓唇音 + st [ʃt]。"}, {"id": "w11", "word": "Urlaub", "gender": "der", "plural": "die Urlaube", "meaning": "休假 / 年假", "phonetic": "[ˈuːɐ̯laʊ̯p]", "domain": "work", "theme": "43. 勞工合約與工時", "level": "A1", "example": "Ich habe nächsten Monat zwei Wochen Urlaub.", "exampleZh": "我下個月有兩週的年假。", "note": "法定年假通常至少 20-30 天。"}, {"id": "w12", "word": "Kündigung", "gender": "die", "plural": "die Kündigungen", "meaning": "解約通知 / 離職信", "phonetic": "[ˈkʏndɪɡʊŋ]", "domain": "work", "theme": "43. 勞工合約與工時", "level": "B1", "example": "Die Kündigung muss schriftlich erfolgen.", "exampleZh": "解僱或辭職必須以書面正式進行。", "note": "德意志法規必須紙本手簽才具法律效力。"}];
+
+    let words = [];
+    let currentWordIndex = 0;
+    let isFlipped = false;
+    let speechRate = 1.0;
+    
+    let audioStream = null;
+    let mediaRecorder = null;
+    let recordedAudioUrl = null;
+    let audioMimeType = 'audio/mp4';
+
+    let currentDomainFilter = 'all';
+    let currentLevelFilter = 'all';
+    let currentGenderFilter = 'all';
+    let autoCycleEnabled = false;
+
+    let stats = {
+      xp: 0,
+      streak: 1,
+      lastLoginDate: new Date().toDateString(),
+      todayReviews: 0,
+      totalReviews: 0,
+      shadowingsCount: 0,
+      unlockedBadges: []
+    };
+
+    const ACHIEVEMENTS = [
+      { id: 'first_word', title: '初出茅廬', desc: '完成首次單字記憶評分', icon: '🌱', threshold: 1, type: 'review' },
+      { id: 'streak_3', title: '三日連勝', desc: '連續登入學習達成 3 天', icon: '🔥', threshold: 3, type: 'streak' },
+      { id: 'shadowing_5', title: '德音學徒', desc: '完成 5 次影子跟讀錄音', icon: '🗣️', threshold: 5, type: 'shadowing' },
+      { id: 'xp_100', title: '百點衝刺', desc: '累積經驗值達到 100 XP', icon: '⚡', threshold: 100, type: 'xp' },
+      { id: 'b1_10', title: 'B1 移民先鋒', desc: '掌握 10 個 B1 移民單字', icon: '🏛️', threshold: 10, type: 'b1' }
+    ];
+
+    function loadData() {
+      try {
+        const savedWords = localStorage.getItem('wortschatz_words_v5');
+        if (savedWords) {
+          words = JSON.parse(savedWords);
+        } else {
+          words = [...BUILTIN_100_PACK];
+          saveWords();
+        }
+
+        const savedStats = localStorage.getItem('wortschatz_stats_v5');
+        if (savedStats) {
+          stats = { ...stats, ...JSON.parse(savedStats) };
+        }
+      } catch (e) {
+        words = [...BUILTIN_100_PACK];
+      }
+
+      checkDailyStreak();
+      updateDomainCounters();
+      updateDashboard();
+      renderCurrentCard();
+      renderLibraryList();
+    }
+
+    function saveWords() {
+      try {
+        localStorage.setItem('wortschatz_words_v5', JSON.stringify(words));
+      } catch (e) {}
+      updateDomainCounters();
+      updateDashboard();
+    }
+
+    function saveStats() {
+      try {
+        localStorage.setItem('wortschatz_stats_v5', JSON.stringify(stats));
+      } catch (e) {}
+      updateDashboard();
+    }
+
+    function checkDailyStreak() {
+      const today = new Date().toDateString();
+      if (stats.lastLoginDate !== today) {
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+        if (stats.lastLoginDate === yesterday) stats.streak += 1;
+        else stats.streak = 1;
+        stats.lastLoginDate = today;
+        stats.todayReviews = 0;
+        saveStats();
+      }
+    }
+
+    /* ========== AUDIO RECORDING: IOS SAFARI ========== */
+    function detectBestAudioMimeType() {
+      if (typeof MediaRecorder === 'undefined') return 'audio/mp4';
+      if (MediaRecorder.isTypeSupported('audio/mp4')) return 'audio/mp4';
+      if (MediaRecorder.isTypeSupported('audio/aac')) return 'audio/aac';
+      if (MediaRecorder.isTypeSupported('audio/webm')) return 'audio/webm';
+      return '';
+    }
+
+    async function toggleSelfRecord() {
+      const btn = document.getElementById('btnRecordSelf');
+      const icon = document.getElementById('recordIcon');
+      const label = document.getElementById('recordLabel');
+      const playBtn = document.getElementById('btnPlaySelf');
+
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+        icon.classList.remove('animate-ping');
+        label.textContent = '重新錄音';
+        btn.classList.remove('bg-rose-100', 'ring-2', 'ring-rose-400');
+        
+        stats.shadowingsCount = (stats.shadowingsCount || 0) + 1;
+        addXP(5);
+        checkBadges();
+        saveStats();
+        showToast('錄音完成！點擊回放對比原音', '🎧');
+        return;
+      }
+
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          showToast('此瀏覽器未開放麥克風權限', '⚠️');
+          return;
+        }
+
+        audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioMimeType = detectBestAudioMimeType();
+        
+        const options = audioMimeType ? { mimeType: audioMimeType } : {};
+        mediaRecorder = new MediaRecorder(audioStream, options);
+        const chunks = [];
+
+        mediaRecorder.ondataavailable = e => {
+          if (e.data && e.data.size > 0) chunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+          const type = audioMimeType || 'audio/mp4';
+          const blob = new Blob(chunks, { type: type });
+          if (recordedAudioUrl) URL.revokeObjectURL(recordedAudioUrl);
+          recordedAudioUrl = URL.createObjectURL(blob);
+          playBtn.classList.remove('hidden');
+          
+          if (audioStream) {
+            audioStream.getTracks().forEach(track => track.stop());
+          }
+        };
+
+        mediaRecorder.start(200);
+        icon.classList.add('animate-ping');
+        label.textContent = '錄音中...';
+        btn.classList.add('bg-rose-100', 'ring-2', 'ring-rose-400');
+        showToast('請大聲朗讀德文！點擊停止', '🎙️');
+      } catch (err) {
+        showToast('麥克風授權失敗，請確認 Safari 權限', '⚠️');
+      }
+    }
+
+    function playSelfAudio() {
+      if (!recordedAudioUrl) return;
+      playClickSound();
+      const audio = new Audio();
+      audio.src = recordedAudioUrl;
+      audio.playsInline = true;
+      audio.play().then(() => {
+        showToast('正在播放你的錄音...', '🗣️');
+      }).catch(e => {
+        showToast('播放失敗，請確認 iPhone 側邊未開靜音', '⚠️');
+      });
+    }
+
+    /* ========== TTS SPEECH ========== */
+    function speakGerman(text, customRate = null) {
+      if (!('speechSynthesis' in window)) {
+        showToast('此環境未支援語音合成', '⚠️');
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'de-DE';
+      utterance.rate = customRate || speechRate;
+      
+      const voices = window.speechSynthesis.getVoices();
+      const deVoice = voices.find(v => v.lang.startsWith('de') && (v.name.includes('Siri') || v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Anna')));
+      if (deVoice) utterance.voice = deVoice;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function playPhoneticSample(text) {
+      playClickSound();
+      speakGerman(text, 0.8);
+      showToast(`發音：${text}`, '🔊');
+    }
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playClickSound(freq = 600, duration = 0.04) {
+      if (!audioCtx) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    /* ========== GAMIFICATION ========== */
+    function addXP(amount) {
+      stats.xp += amount;
+      saveStats();
+    }
+
+    function getLevelInfo(xp) {
+      const level = Math.floor(xp / 100) + 1;
+      let title = "Lv.1 德語新手";
+      if (level >= 8) title = "Lv.8 柏林通";
+      else if (level >= 5) title = "Lv.5 雙語達人";
+      else if (level >= 3) title = "Lv.3 移民研修者";
+      else if (level >= 2) title = "Lv.2 語音探索家";
+      return { level, title };
+    }
+
+    function checkBadges() {
+      ACHIEVEMENTS.forEach(ach => {
+        if (stats.unlockedBadges.includes(ach.id)) return;
+        let unlocked = false;
+        if (ach.type === 'review' && stats.totalReviews >= ach.threshold) unlocked = true;
+        if (ach.type === 'streak' && stats.streak >= ach.threshold) unlocked = true;
+        if (ach.type === 'xp' && stats.xp >= ach.threshold) unlocked = true;
+        if (ach.type === 'shadowing' && (stats.shadowingsCount || 0) >= ach.threshold) unlocked = true;
+        if (ach.type === 'b1') {
+          const masteredB1 = words.filter(w => w.level === 'B1' && (w.repetitions || 0) >= 1).length;
+          if (masteredB1 >= ach.threshold) unlocked = true;
+        }
+
+        if (unlocked) {
+          stats.unlockedBadges.push(ach.id);
+          addXP(30);
+          showToast(`🏆 解鎖成就：${ach.title} (+30 XP)！`, '🎉');
+        }
+      });
+    }
+
+    function updateDashboard() {
+      const { level, title } = getLevelInfo(stats.xp);
+      document.getElementById('topStreakCount').textContent = stats.streak;
+      document.getElementById('topXpCount').textContent = stats.xp;
+      document.getElementById('headerLevelBadge').textContent = `Lv.${level}`;
+      document.getElementById('dashLevelTitle').textContent = title;
+
+      const b1Words = words.filter(w => w.level === 'B1');
+      const b1Mastered = b1Words.filter(w => (w.repetitions || 0) >= 1).length;
+      const b1Percent = b1Words.length > 0 ? Math.round((b1Mastered / b1Words.length) * 100) : 0;
+      
+      document.getElementById('dashMasteryPercent').textContent = `${b1Percent}%`;
+      document.getElementById('dashMasteryBar').style.width = `${Math.max(b1Percent, 5)}%`;
+
+      const a1Words = words.filter(w => w.level === 'A1');
+      const a1Done = a1Words.filter(w => (w.repetitions || 0) >= 1).length;
+      document.getElementById('statA1Progress').textContent = `${a1Done}/${a1Words.length}`;
+
+      const a2Words = words.filter(w => w.level === 'A2');
+      const a2Done = a2Words.filter(w => (w.repetitions || 0) >= 1).length;
+      document.getElementById('statA2Progress').textContent = `${a2Done}/${a2Words.length}`;
+
+      document.getElementById('statB1Progress').textContent = `${b1Mastered}/${b1Words.length}`;
+
+      const container = document.getElementById('badgesContainer');
+      container.innerHTML = ACHIEVEMENTS.map(ach => {
+        const isUnlocked = stats.unlockedBadges.includes(ach.id);
+        return `
+          <div class="p-3 rounded-2xl border ${isUnlocked ? 'bg-amber-50/60 border-amber-200' : 'bg-slate-100/60 border-slate-200 opacity-60'} flex items-center space-x-2.5">
+            <span class="text-2xl">${ach.icon}</span>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center space-x-1">
+                <span class="font-bold text-xs ${isUnlocked ? 'text-amber-900' : 'text-slate-500'} truncate">${ach.title}</span>
+                ${isUnlocked ? '<span class="text-[9px] bg-amber-200 text-amber-800 px-1 rounded font-bold">已解鎖</span>' : ''}
+              </div>
+              <p class="text-[10px] text-slate-500 mt-0.5 leading-snug">${ach.desc}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* ========== DOMAINS & THEMES HELPERS ========== */
+    function getDomainLabel(domain) {
+      switch (domain) {
+        case 'daily': return '☕ 日常生活';
+        case 'food': return '🍽️ 飲食餐飲';
+        case 'travel': return '✈️ 交通旅遊';
+        case 'social': return '👥 人際家庭';
+        case 'immigration': return '🏛️ 居留市政';
+        case 'work': return '💼 職場進修';
+        case 'health': return '🏥 健康醫療';
+        default: return '綜合領域';
+      }
+    }
+
+    function updateDomainCounters() {
+      document.getElementById('countDomainAll').textContent = words.length;
+      ['daily', 'food', 'travel', 'social', 'immigration', 'work', 'health'].forEach(d => {
+        const el = document.getElementById(`countDomain${d.charAt(0).toUpperCase() + d.slice(1)}`);
+        if (el) el.textContent = words.filter(w => w.domain === d).length;
+      });
+    }
+
+    function getActivePool() {
+      return words.filter(w => {
+        const matchDomain = currentDomainFilter === 'all' || w.domain === currentDomainFilter;
+        const matchLevel = currentLevelFilter === 'all' || w.level === currentLevelFilter;
+        return matchDomain && matchLevel;
+      });
+    }
+
+    /* ========== FLASHCARD REVIEW & DYNAMIC FONT SIZING ========== */
+    function renderCurrentCard() {
+      const pool = getActivePool();
+      if (pool.length === 0) {
+        document.getElementById('cardWord').textContent = "無此分類單字";
+        document.getElementById('cardGenderBadge').textContent = "-";
+        document.getElementById('cardLevelBadge').textContent = "-";
+        document.getElementById('cardThemeBadge').textContent = "請切換領域";
+        document.getElementById('cardPlural').textContent = "或點同步加載題庫";
+        document.getElementById('cardMeaning').textContent = "查無資料";
+        return;
+      }
+
+      if (currentWordIndex >= pool.length) currentWordIndex = 0;
+      const w = pool[currentWordIndex];
+      const card = document.getElementById('flashcard');
+      card.classList.remove('rotate-y-180');
+      isFlipped = false;
+
+      const badge = document.getElementById('cardGenderBadge');
+      const backGender = document.getElementById('backCardGender');
+      badge.textContent = w.gender === 'none' ? '動詞/其他' : w.gender;
+      
+      badge.className = "px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-white shadow-xs ";
+      if (w.gender === 'der') {
+        badge.classList.add('bg-der');
+        backGender.className = 'text-xs font-bold text-blue-400 uppercase tracking-wider';
+        backGender.textContent = `der ${w.word}`;
+      } else if (w.gender === 'die') {
+        badge.classList.add('bg-die');
+        backGender.className = 'text-xs font-bold text-red-400 uppercase tracking-wider';
+        backGender.textContent = `die ${w.word}`;
+      } else if (w.gender === 'das') {
+        badge.classList.add('bg-das');
+        backGender.className = 'text-xs font-bold text-green-400 uppercase tracking-wider';
+        backGender.textContent = `das ${w.word}`;
+      } else {
+        badge.classList.add('bg-verb');
+        backGender.className = 'text-xs font-bold text-purple-400 uppercase tracking-wider';
+        backGender.textContent = w.word;
+      }
+
+      document.getElementById('cardLevelBadge').textContent = w.level || 'A1';
+      document.getElementById('cardThemeBadge').textContent = w.theme || getDomainLabel(w.domain);
+      document.getElementById('backCardLevel').textContent = `${w.level || 'A1'} • ${w.theme || getDomainLabel(w.domain)}`;
+
+      // DYNAMIC FONT SIZING FOR LONG GERMAN WORDS
+      const wordEl = document.getElementById('cardWord');
+      wordEl.textContent = w.word;
+      if (w.word.length > 16) {
+        wordEl.className = "text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight mb-2 break-all";
+      } else if (w.word.length > 11) {
+        wordEl.className = "text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-2";
+      } else {
+        wordEl.className = "text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-2";
+      }
+
+      document.getElementById('cardPlural').textContent = w.plural ? `Pl: ${w.plural}` : '';
+      document.getElementById('cardPhonetic').textContent = w.phonetic || `[${w.word}]`;
+
+      document.getElementById('btnPlaySelf').classList.add('hidden');
+      document.getElementById('recordLabel').textContent = '錄音跟讀';
+      recordedAudioUrl = null;
+
+      document.getElementById('cardMeaning').textContent = w.meaning;
+      document.getElementById('cardExample').textContent = w.example || '無例句';
+      document.getElementById('cardExampleZh').textContent = w.exampleZh || '';
+      
+      const noteBox = document.getElementById('cardNoteBox');
+      const noteText = document.getElementById('cardNoteText');
+      if (w.note) {
+        noteBox.classList.remove('hidden');
+        noteText.textContent = w.note;
+      } else {
+        noteBox.classList.add('hidden');
+      }
+    }
+
+    function toggleFlipCard() {
+      playClickSound(400);
+      const card = document.getElementById('flashcard');
+      isFlipped = !isFlipped;
+      if (isFlipped) card.classList.add('rotate-y-180');
+      else card.classList.remove('rotate-y-180');
+    }
+
+    function rateCurrentWord(rating) {
+      const pool = getActivePool();
+      if (pool.length === 0) return;
+      playClickSound(700);
+      
+      const w = pool[currentWordIndex];
+      w.repetitions = (w.repetitions || 0) + 1;
+      
+      if (rating === 1) w.interval = 1;
+      else if (rating === 2) w.interval = Math.max(1, Math.round(w.interval * 1.2));
+      else if (rating === 3) w.interval = Math.round(w.interval * 2.5);
+      else if (rating === 4) w.interval = Math.round(w.interval * 4);
+      
+      w.nextReview = Date.now() + (w.interval * 86400000);
+      
+      stats.totalReviews += 1;
+      stats.todayReviews = (stats.todayReviews || 0) + 1;
+      addXP(10);
+      checkBadges();
+      saveWords();
+      saveStats();
+
+      if (autoCycleEnabled) {
+        const domains = ['daily', 'food', 'travel', 'social', 'immigration', 'work', 'health'];
+        const nextDomain = domains[Math.floor(Math.random() * domains.length)];
+        currentDomainFilter = nextDomain;
+        highlightActiveDomainPill(nextDomain);
+      }
+
+      const newPool = getActivePool();
+      currentWordIndex = (currentWordIndex + 1) % (newPool.length || 1);
+      renderCurrentCard();
+      showToast(`已排程 ${w.interval} 天後複習 (+10 XP)！`, '🎯');
+    }
+
+    /* ========== BULLETPROOF FLIP & SWIPE GESTURES ========== */
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchDeltaX = 0;
+    let isSwiping = false;
+
+    function initSwipeGestures() {
+      const card = document.getElementById('flashcard');
+
+      card.addEventListener('touchstart', e => {
+        // IF USER TAPS AUDIO CONTROLS OR BUTTONS -> DO NOT TOUCH TRACK OR SWIPE!
+        if (e.target.closest('#audioControlBar') || e.target.closest('button')) {
+          isSwiping = false;
+          return;
+        }
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchDeltaX = 0;
+        isSwiping = true;
+        card.style.transition = 'none';
+      }, { passive: true });
+
+      card.addEventListener('touchmove', e => {
+        if (!isSwiping) return;
+        const currentX = e.touches[0].clientX;
+        const currentY = e.touches[0].clientY;
+        touchDeltaX = currentX - touchStartX;
+        const deltaY = currentY - touchStartY;
+
+        // Horizontal gesture preference
+        if (Math.abs(touchDeltaX) > Math.abs(deltaY) && Math.abs(touchDeltaX) > 10) {
+          const rotation = touchDeltaX * 0.04;
+          card.style.transform = isFlipped ? 
+            `rotateY(180deg) translateX(${touchDeltaX}px)` : 
+            `translateX(${touchDeltaX}px) rotate(${rotation}deg)`;
+        }
+      }, { passive: true });
+
+      card.addEventListener('touchend', e => {
+        if (!isSwiping) return;
+        isSwiping = false;
+        card.style.transition = 'transform 0.3s ease';
+
+        if (touchDeltaX < -80) {
+          card.style.transform = isFlipped ? 'rotateY(180deg) translateX(-120%)' : 'translateX(-120%)';
+          setTimeout(() => {
+            rateCurrentWord(1);
+            card.style.transform = isFlipped ? 'rotateY(180deg)' : 'none';
+          }, 200);
+        } else if (touchDeltaX > 80) {
+          card.style.transform = isFlipped ? 'rotateY(180deg) translateX(120%)' : 'translateX(120%)';
+          setTimeout(() => {
+            rateCurrentWord(3);
+            card.style.transform = isFlipped ? 'rotateY(180deg)' : 'none';
+          }, 200);
+        } else {
+          card.style.transform = isFlipped ? 'rotateY(180deg)' : 'none';
+        }
+      });
+
+      // STOP AUDIO BAR TOUCHES FROM BUBBLING TO SWIPER
+      const audioBar = document.getElementById('audioControlBar');
+      ['touchstart', 'touchmove', 'touchend'].forEach(evt => {
+        audioBar.addEventListener(evt, e => {
+          e.stopPropagation();
+        }, { passive: false });
+      });
+
+      // DEDICATED TAP ZONES (100% RELIABLE CLICK/TAP FLIP)
+      document.getElementById('cardFrontTapArea').addEventListener('click', (e) => {
+        if (e.target.closest('button')) return;
+        toggleFlipCard();
+      });
+
+      document.getElementById('btnExplicitFlip').addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleFlipCard();
+      });
+
+      document.getElementById('cardBackTapArea').addEventListener('click', () => {
+        toggleFlipCard();
+      });
+
+      document.getElementById('btnFlipBack').addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleFlipCard();
+      });
+    }
+
+    /* ========== BATCH IMPORT & EXPANSION PACKS ========== */
+    function mergeWordsList(newWords) {
+      let added = 0;
+      newWords.forEach(nw => {
+        if (!nw.word) return;
+        const exists = words.find(w => w.word.toLowerCase() === nw.word.toLowerCase());
+        if (!exists) {
+          words.push({
+            id: nw.id || 'w_' + Date.now() + Math.random().toString(36).substr(2, 4),
+            word: nw.word,
+            gender: nw.gender || 'none',
+            plural: nw.plural || '',
+            meaning: nw.meaning || '',
+            phonetic: nw.phonetic || `[${nw.word}]`,
+            domain: nw.domain || 'daily',
+            theme: nw.theme || getDomainLabel(nw.domain || 'daily'),
+            level: nw.level || 'A1',
+            example: nw.example || '',
+            exampleZh: nw.exampleZh || '',
+            note: nw.note || '',
+            nextReview: 0,
+            interval: 1,
+            repetitions: 0
+          });
+          added++;
+        }
+      });
+      saveWords();
+      renderCurrentCard();
+      renderLibraryList();
+      return added;
+    }
+
+    function executeBatchImport() {
+      const raw = document.getElementById('textareaBatchImport').value.trim();
+      if (!raw) {
+        showToast('請貼上內容後再點擊匯入', '⚠️');
+        return;
+      }
+
+      playClickSound();
+      if (raw.startsWith('[') || raw.startsWith('{')) {
+        try {
+          const parsed = JSON.parse(raw);
+          const list = Array.isArray(parsed) ? parsed : (parsed.words || [parsed]);
+          const count = mergeWordsList(list);
+          showToast(`已批次匯入 ${count} 個新單字！`, '📥');
+          document.getElementById('textareaBatchImport').value = '';
+          return;
+        } catch (e) {}
+      }
+
+      const lines = raw.split('\n');
+      const parsedList = [];
+      lines.forEach(line => {
+        const parts = line.split(',').map(s => s.trim());
+        if (parts.length >= 2) {
+          let gender = 'none';
+          let wordStr = parts[0];
+          if (wordStr.startsWith('der ')) { gender = 'der'; wordStr = wordStr.replace('der ', ''); }
+          else if (wordStr.startsWith('die ')) { gender = 'die'; wordStr = wordStr.replace('die ', ''); }
+          else if (wordStr.startsWith('das ')) { gender = 'das'; wordStr = wordStr.replace('das ', ''); }
+
+          parsedList.push({
+            word: wordStr,
+            gender: gender,
+            plural: parts.length >= 3 ? parts[1] : '',
+            meaning: parts.length >= 3 ? parts[2] : parts[1],
+            domain: parts.length >= 4 ? parts[3] : 'daily',
+            level: parts.length >= 5 ? parts[4] : 'A1'
+          });
+        }
+      });
+
+      if (parsedList.length > 0) {
+        const count = mergeWordsList(parsedList);
+        showToast(`已成功解析並新增 ${count} 個單字！`, '📥');
+        document.getElementById('textareaBatchImport').value = '';
+      } else {
+        showToast('無法識別格式，請檢查輸入內容', '⚠️');
+      }
+    }
+
+    /* ========== LIBRARY VIEW ========== */
+    function renderLibraryList() {
+      const container = document.getElementById('wordList');
+      const query = document.getElementById('inputSearch').value.trim().toLowerCase();
+      
+      let filtered = words.filter(w => {
+        const matchesQuery = w.word.toLowerCase().includes(query) || 
+                             w.meaning.toLowerCase().includes(query) || 
+                             (w.plural && w.plural.toLowerCase().includes(query)) ||
+                             (w.theme && w.theme.toLowerCase().includes(query));
+        if (!matchesQuery) return false;
+        if (currentGenderFilter === 'all') return true;
+        if (currentGenderFilter === 'other') return w.gender === 'none';
+        return w.gender === currentGenderFilter;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 text-slate-400 text-xs">
+            查無單字，點擊右上角「加字」或至「單字同步」分頁匯入！
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(w => {
+        let genderColorClass = 'bg-slate-200 text-slate-700';
+        let borderClass = 'border-l-4 border-slate-300';
+        let genderLabel = w.gender;
+
+        if (w.gender === 'der') {
+          genderColorClass = 'bg-blue-100 text-blue-800';
+          borderClass = 'border-l-4 border-blue-600';
+        } else if (w.gender === 'die') {
+          genderColorClass = 'bg-red-100 text-red-800';
+          borderClass = 'border-l-4 border-red-600';
+        } else if (w.gender === 'das') {
+          genderColorClass = 'bg-green-100 text-green-800';
+          borderClass = 'border-l-4 border-green-600';
+        } else {
+          genderColorClass = 'bg-purple-100 text-purple-800';
+          borderClass = 'border-l-4 border-purple-600';
+          genderLabel = '動/其他';
+        }
+
+        return `
+          <div class="bg-white p-3 rounded-2xl shadow-xs border border-slate-200 ${borderClass} flex items-center justify-between">
+            <div class="flex-1 min-w-0 pr-2">
+              <div class="flex items-center space-x-1.5 flex-wrap">
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${genderColorClass}">${genderLabel}</span>
+                <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">${w.level || 'A1'}</span>
+                <span class="font-bold text-sm text-slate-900 truncate">${w.word}</span>
+                ${w.plural ? `<span class="text-xs text-slate-400 truncate">(${w.plural})</span>` : ''}
+              </div>
+              <p class="text-xs text-slate-600 mt-1 truncate">${w.meaning}</p>
+              <p class="text-[10px] text-slate-400 mt-0.5 truncate">${w.theme || getDomainLabel(w.domain)}</p>
+            </div>
+            
+            <div class="flex items-center space-x-1 shrink-0">
+              <button onclick="speakGerman('${w.word}')" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl active:scale-95 transition" title="聽發音">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+              </button>
+              <button onclick="deleteWord('${w.id}')" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl active:scale-95 transition" title="刪除">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function deleteWord(id) {
+      playClickSound(300);
+      words = words.filter(w => w.id !== id);
+      saveWords();
+      renderLibraryList();
+      renderCurrentCard();
+      showToast('單字已刪除', '🗑️');
+    }
+
+    function highlightActiveDomainPill(domain) {
+      document.querySelectorAll('.domain-pill').forEach(btn => {
+        if (btn.getAttribute('data-domain') === domain) {
+          btn.classList.add('bg-slate-900', 'text-white');
+          btn.classList.remove('bg-slate-100', 'text-slate-700');
+        } else {
+          btn.classList.remove('bg-slate-900', 'text-white');
+          btn.classList.add('bg-slate-100', 'text-slate-700');
+        }
+      });
+    }
+
+    /* ========== MODAL ========== */
+    function openAddModal() {
+      playClickSound();
+      document.getElementById('inputWordId').value = '';
+      document.getElementById('formWord').reset();
+      document.getElementById('modalTitle').textContent = '新增德文學習單字';
+      document.getElementById('modalWord').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('modalWord').classList.add('hidden');
+    }
+
+    /* ========== NAVIGATION TABS ========== */
+    function switchTab(targetId) {
+      playClickSound(500);
+      const views = ['viewCards', 'viewAchievements', 'viewLibrary', 'viewPronunciation', 'viewSettings'];
+      views.forEach(v => {
+        const el = document.getElementById(v);
+        if (v === targetId) el.classList.remove('hidden');
+        else el.classList.add('hidden');
+      });
+
+      document.querySelectorAll('.nav-tab').forEach(btn => {
+        if (btn.getAttribute('data-tab') === targetId) {
+          btn.classList.add('text-blue-600');
+          btn.classList.remove('text-slate-400');
+        } else {
+          btn.classList.remove('text-blue-600');
+          btn.classList.add('text-slate-400');
+        }
+      });
+
+      if (targetId === 'viewAchievements') updateDashboard();
+      if (targetId === 'viewLibrary') renderLibraryList();
+    }
+
+    /* ========== TOAST ========== */
+    let toastTimer = null;
+    function showToast(msg, icon = '✨') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      document.getElementById('toastIcon').textContent = icon;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      toast.classList.add('opacity-100');
+      
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 2500);
+    }
+
+    /* ========== INITIALIZATION ========== */
+    window.addEventListener('DOMContentLoaded', () => {
+      loadData();
+      initSwipeGestures();
+
+      document.getElementById('btnPlayTTS').addEventListener('click', (e) => {
+        e.stopPropagation();
+        playClickSound();
+        const pool = getActivePool();
+        if (pool[currentWordIndex]) {
+          const w = pool[currentWordIndex];
+          const textToSpeak = w.gender !== 'none' ? `${w.gender} ${w.word}` : w.word;
+          speakGerman(textToSpeak);
+        }
+      });
+
+      document.getElementById('btnToggleSpeed').addEventListener('click', (e) => {
+        e.stopPropagation();
+        playClickSound();
+        speechRate = speechRate === 1.0 ? 0.75 : 1.0;
+        document.getElementById('btnToggleSpeed').textContent = `${speechRate}x`;
+        showToast(`發音速度切換為 ${speechRate}x`, '⚡');
+      });
+
+      document.getElementById('btnRecordSelf').addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleSelfRecord();
+      });
+
+      document.getElementById('btnPlaySelf').addEventListener('click', (e) => {
+        e.stopPropagation();
+        playSelfAudio();
+      });
+
+      document.getElementById('btnToggleAutoCycle').addEventListener('click', () => {
+        playClickSound(500);
+        autoCycleEnabled = !autoCycleEnabled;
+        const dot = document.getElementById('autoCycleDot');
+        const label = document.getElementById('autoCycleLabel');
+        if (autoCycleEnabled) {
+          dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-ping';
+          label.textContent = '50主題輪播：開';
+          showToast('已啟用 50 主題動態隨機輪播！', '🔀');
+        } else {
+          dot.className = 'w-2 h-2 rounded-full bg-slate-400';
+          label.textContent = '50主題輪播：關';
+          showToast('已鎖定目前選定領域', '🔒');
+        }
+      });
+
+      document.querySelectorAll('.domain-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          playClickSound(450);
+          currentDomainFilter = btn.getAttribute('data-domain');
+          highlightActiveDomainPill(currentDomainFilter);
+          currentWordIndex = 0;
+          renderCurrentCard();
+        });
+      });
+
+      document.querySelectorAll('.level-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          playClickSound(450);
+          document.querySelectorAll('.level-pill').forEach(p => {
+            p.className = 'level-pill px-2 py-0.5 rounded-md bg-slate-100 text-slate-600';
+          });
+          btn.className = 'level-pill px-2 py-0.5 rounded-md bg-blue-600 text-white';
+          currentLevelFilter = btn.getAttribute('data-level');
+          currentWordIndex = 0;
+          renderCurrentCard();
+        });
+      });
+
+      document.querySelectorAll('.nav-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          switchTab(btn.getAttribute('data-tab'));
+        });
+      });
+
+      document.getElementById('btnOpenSyncModal').addEventListener('click', () => {
+        switchTab('viewSettings');
+      });
+
+      document.getElementById('btnOpenAddModal').addEventListener('click', openAddModal);
+      document.getElementById('btnCloseModal').addEventListener('click', closeModal);
+      document.getElementById('modalWord').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('modalWord')) closeModal();
+      });
+
+      document.getElementById('formWord').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const selectedDomain = document.getElementById('selectDomain').value;
+        const selectedLevel = document.getElementById('selectLevel').value;
+        const selectedGender = document.querySelector('input[name="gender"]:checked').value;
+        const wordText = document.getElementById('inputGerman').value.trim();
+        const pluralText = document.getElementById('inputPlural').value.trim();
+        const meaningText = document.getElementById('inputMeaning').value.trim();
+        const exampleText = document.getElementById('inputExample').value.trim();
+        const exampleZhText = document.getElementById('inputExampleZh').value.trim();
+
+        if (!wordText || !meaningText) return;
+
+        const newWord = {
+          id: 'w_' + Date.now(),
+          word: wordText,
+          gender: selectedGender,
+          plural: pluralText,
+          meaning: meaningText,
+          phonetic: `[${wordText}]`,
+          domain: selectedDomain,
+          theme: getDomainLabel(selectedDomain),
+          level: selectedLevel,
+          example: exampleText,
+          exampleZh: exampleZhText,
+          note: '',
+          nextReview: 0,
+          interval: 1,
+          repetitions: 0
+        };
+
+        words.unshift(newWord);
+        addXP(20);
+        saveWords();
+        closeModal();
+        renderCurrentCard();
+        renderLibraryList();
+        showToast(`已新增：${wordText} (+20 XP)！`, '✅');
+      });
+
+      document.getElementById('btnOneClick100Pack').addEventListener('click', () => {
+        playClickSound(300);
+        const count = mergeWordsList(BUILTIN_100_PACK);
+        showToast(`🎉 成功載入！新增了 ${count} 個精選單字`, '⚡');
+      });
+
+      document.getElementById('btnExecuteBatchImport').addEventListener('click', executeBatchImport);
+
+      document.getElementById('btnForceReloadUI').addEventListener('click', () => {
+        playClickSound(500);
+        showToast('正在強制刷新最新 UI...', '🔄');
+        setTimeout(() => {
+          window.location.href = window.location.pathname + '?v=' + Date.now();
+        }, 500);
+      });
+
+      document.getElementById('inputSearch').addEventListener('input', renderLibraryList);
+
+      document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          playClickSound(450);
+          document.querySelectorAll('.filter-chip').forEach(c => {
+            c.classList.remove('bg-slate-900', 'text-white');
+            c.classList.add('bg-white');
+          });
+          chip.classList.add('bg-slate-900', 'text-white');
+          chip.classList.remove('bg-white');
+          currentGenderFilter = chip.getAttribute('data-filter');
+          renderLibraryList();
+        });
+      });
+
+      document.getElementById('btnExportJSON').addEventListener('click', () => {
+        playClickSound();
+        const exportObj = { words, stats };
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, null, 2));
+        const dlAnchor = document.createElement('a');
+        dlAnchor.setAttribute("href", dataStr);
+        dlAnchor.setAttribute("download", "wortschatz_backup.json");
+        document.body.appendChild(dlAnchor);
+        dlAnchor.click();
+        dlAnchor.remove();
+        showToast('已匯出完整單字與學習記錄', '📦');
+      });
+    });
+  </script>
+</body>
+</html>
