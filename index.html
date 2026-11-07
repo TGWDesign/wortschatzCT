@@ -60,6 +60,13 @@
     ::-webkit-scrollbar {
       display: none;
     }
+    @keyframes bounce-scale {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+    .animate-badge-pop {
+      animation: bounce-scale 0.6s ease-in-out;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between font-sans">
@@ -144,62 +151,58 @@
         </div>
       </div>
 
-      <!-- Flashcard Deck Container (Separated Pointer Events) -->
-      <div id="deckContainer" class="relative w-full h-[400px] perspective-1000">
+      <!-- Flashcard Deck Container (DUAL FLIP: Central Area + Designated Bar) -->
+      <div id="deckContainer" class="relative w-full h-[410px] perspective-1000">
         <div id="flashcard" class="w-full h-full relative transform-style-3d transition-transform duration-300">
           
           <!-- FRONT FACE (德文正面) -->
           <div id="cardFront" class="absolute inset-0 w-full h-full bg-white rounded-3xl p-5 shadow-xl border border-slate-150 flex flex-col justify-between backface-hidden z-10" style="pointer-events: auto;">
             
-            <!-- UPPER TAP ZONE -->
-            <div id="cardFrontTapArea" class="flex-1 flex flex-col justify-between cursor-pointer">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-1.5 flex-wrap">
-                  <span id="cardGenderBadge" class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-white bg-der shadow-xs">
-                    der
-                  </span>
-                  <span id="cardLevelBadge" class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200">
-                    B1
-                  </span>
-                  <span id="cardThemeBadge" class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-600 truncate max-w-[140px]">
-                    🏛️ 居留與市政
-                  </span>
-                </div>
-
-                <!-- EXPLICIT FLIP BUTTON -->
-                <button id="btnExplicitFlip" type="button" class="flex items-center space-x-1 text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-full text-xs font-bold active:scale-95 transition shadow-xs">
-                  <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                  <span>翻看中文</span>
-                </button>
+            <!-- HEADER INFO -->
+            <div class="flex items-center justify-between pointer-events-none">
+              <div class="flex items-center space-x-1.5 flex-wrap">
+                <span id="cardGenderBadge" class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-white bg-der shadow-xs">
+                  der
+                </span>
+                <span id="cardLevelBadge" class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200">
+                  B1
+                </span>
+                <span id="cardThemeBadge" class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-600 truncate max-w-[150px]">
+                  🏛️ 居留與市政
+                </span>
               </div>
+              <span class="text-[10px] text-slate-400 font-medium">點擊任意處翻面</span>
+            </div>
 
-              <!-- CENTRAL WORD -->
-              <div class="text-center my-auto py-2">
-                <h2 id="cardWord" class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-2">
-                  Aufenthaltstitel
-                </h2>
-                <p id="cardPlural" class="text-sm font-semibold text-slate-500">
-                  die Aufenthaltstitel
-                </p>
-                <div id="cardPhonetic" class="mt-2 inline-block px-2.5 py-1 bg-slate-100 text-slate-600 text-xs rounded-lg font-mono">
-                  [ˈaʊ̯fʔɛntˌhaltstiːtl̩]
-                </div>
-              </div>
-
-              <div class="text-center text-[11px] text-slate-400 py-0.5">
-                👆 點擊單字區域或右上角翻面
+            <!-- CENTRAL TAP ZONE (點擊字卡中央任意處翻面) -->
+            <div id="cardFrontCenterArea" class="flex-1 flex flex-col justify-center items-center cursor-pointer text-center py-2 active:opacity-80 transition-opacity">
+              <h2 id="cardWord" class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-2">
+                Aufenthaltstitel
+              </h2>
+              <p id="cardPlural" class="text-sm font-semibold text-slate-500">
+                die Aufenthaltstitel
+              </p>
+              <div id="cardPhonetic" class="mt-2 inline-block px-2.5 py-1 bg-slate-100 text-slate-600 text-xs rounded-lg font-mono">
+                [ˈaʊ̯fʔɛntˌhaltstiːtl̩]
               </div>
             </div>
 
+            <!-- DESIGNATED SINGLE-TAP FLIP BAR (指定翻面 BAR) -->
+            <div class="py-1">
+              <button id="btnExplicitFlip" type="button" class="w-full py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-2xl text-xs font-bold border border-blue-200 active:scale-95 transition flex items-center justify-center space-x-1.5 shadow-xs">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                <span>📖 點此翻看中文釋義與例句</span>
+              </button>
+            </div>
+
             <!-- AUDIO CONTROL BAR (ISOLATED) -->
-            <div id="audioControlBar" class="space-y-2 pt-2 border-t border-slate-100">
+            <div id="audioControlBar" class="space-y-1.5 pt-2 border-t border-slate-100">
               <div class="flex items-center justify-center space-x-2">
                 <button id="btnPlayTTS" type="button" class="flex items-center space-x-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 px-3.5 py-2 rounded-xl text-xs font-semibold active:scale-95 transition-transform">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
                   <span>標準德音</span>
                 </button>
                 
-                <!-- 0.5x, 0.75x, 1.0x Speed Button -->
                 <button id="btnToggleSpeed" type="button" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl font-mono font-bold active:scale-95 transition" title="切換發音倍速">
                   1.0x
                 </button>
@@ -216,14 +219,15 @@
               </div>
 
               <p class="text-[10px] text-center text-slate-400">
-                👈 左滑忘記 • 右滑記住 • 倍速支援 0.5x 慢速拆音
+                👈 左滑忘記 • 右滑記住 • 點單字或 Bar 皆可翻面
               </p>
             </div>
           </div>
 
           <!-- BACK FACE (釋義背面) -->
           <div id="cardBack" class="absolute inset-0 w-full h-full bg-slate-900 text-white rounded-3xl p-5 shadow-xl flex flex-col justify-between rotate-y-180 backface-hidden" style="pointer-events: none;">
-            <div id="cardBackTapArea" class="flex-1 flex flex-col justify-between cursor-pointer">
+            <!-- BACK CENTRAL TAP ZONE (點擊背面中央任意處翻回) -->
+            <div id="cardBackCenterArea" class="flex-1 flex flex-col justify-between cursor-pointer active:opacity-80 transition-opacity">
               <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                 <span id="backCardGender" class="text-xs font-bold text-blue-400 uppercase tracking-wider">der Aufenthaltstitel</span>
                 <span id="backCardLevel" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-900/60 text-blue-300">B1 移民認證</span>
@@ -237,8 +241,7 @@
                   </p>
                 </div>
 
-                <!-- Example Sentence with TTS Audio Button -->
-                <div class="bg-slate-800/80 rounded-2xl p-3.5 border border-slate-700/60">
+                <div class="bg-slate-800/80 rounded-2xl p-3.5 border border-slate-700/60" onclick="event.stopPropagation()">
                   <div class="flex items-center justify-between mb-1">
                     <span class="text-[11px] uppercase tracking-wider font-semibold text-slate-400">德文例句（Beispielsatz）</span>
                     <button id="btnPlayExample" type="button" class="flex items-center space-x-1 text-xs text-blue-400 hover:text-blue-300 bg-blue-950/60 border border-blue-500/30 px-2 py-0.5 rounded-lg font-bold active:scale-95 transition">
@@ -261,9 +264,9 @@
               </div>
             </div>
 
-            <!-- EXPLICIT FLIP BACK BUTTON -->
-            <button id="btnFlipBack" type="button" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-bold rounded-xl active:scale-95 transition border border-slate-700 shadow-md">
-              🔄 點此翻回正面
+            <!-- DESIGNATED SINGLE-TAP FLIP BACK BAR -->
+            <button id="btnFlipBack" type="button" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs font-bold rounded-2xl active:scale-95 transition border border-slate-700 shadow-md flex items-center justify-center space-x-1">
+              <span>🔄 點此翻回正面德文</span>
             </button>
           </div>
 
@@ -298,7 +301,7 @@
     </section>
 
 
-    <!-- ========== VIEW 2: ACHIEVEMENT DASHBOARD ========== -->
+    <!-- ========== VIEW 2: ACHIEVEMENT DASHBOARD (榮譽成就牆) ========== -->
     <section id="viewAchievements" class="hidden space-y-4">
       <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-5 shadow-xl">
         <div class="flex items-center justify-between mb-3">
@@ -332,8 +335,12 @@
         </div>
       </div>
 
+      <!-- BADGES WALL WITH INTERACTIVE DETAILS & SHARE -->
       <div class="space-y-2.5">
-        <h3 class="font-bold text-sm text-slate-800 px-1">🏆 榮譽成就勳章牆</h3>
+        <div class="flex items-center justify-between px-1">
+          <h3 class="font-bold text-sm text-slate-800">🏆 榮譽成就勳章牆 (點擊徽章分享/查看)</h3>
+          <span class="text-[11px] font-semibold text-blue-600" id="badgeProgressCount">0/18</span>
+        </div>
         <div id="badgesContainer" class="grid grid-cols-2 gap-2.5"></div>
       </div>
     </section>
@@ -431,7 +438,7 @@
             <span class="font-bold text-sm text-slate-800">4. s / ss / ß 發音辨析</span>
           </div>
           <p class="text-xs text-slate-600 leading-relaxed mb-2">
-            <strong>母音前 s [z]</strong>：帶聲濁音（如「日」的清音化）。<br>
+            <strong>母音前 s [z]</strong>：帶聲濁音。<br>
             <strong>ss / ß [s]</strong>：清音；短母音後用 ss，長母音/雙母音後用 ß。
           </p>
           <div class="flex flex-wrap gap-2">
@@ -545,7 +552,7 @@
     <!-- ========== VIEW 5: SETTINGS & 5000 EXPANSION ========== -->
     <section id="viewSettings" class="hidden space-y-3.5">
       
-      <!-- ONE CLICK 5000 EXPANSION PACK (NEW!) -->
+      <!-- 5000 EXPANSION HUB -->
       <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-3xl p-5 shadow-lg space-y-2.5">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-2">
@@ -556,11 +563,24 @@
             </div>
           </div>
         </div>
-        <button id="btnOneClick5000Pack" type="button" class="w-full py-3 bg-white hover:bg-emerald-50 text-emerald-950 rounded-xl text-xs font-black shadow-md active:scale-95 transition flex items-center justify-center space-x-1.5">
-          <span>🚀 一鍵載入 5,000 完整詞庫</span>
-        </button>
+        
+        <div class="space-y-2 pt-1">
+          <button id="btnOneClick5000Pack" type="button" class="w-full py-3 bg-white hover:bg-emerald-50 text-emerald-950 rounded-xl text-xs font-black shadow-md active:scale-95 transition flex items-center justify-center space-x-1.5">
+            <span>🚀 一鍵載入 5,000 完整詞庫 (免聯網)</span>
+          </button>
+          
+          <button id="btnFetchGitHubJson" type="button" class="w-full py-2.5 bg-emerald-800/80 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold active:scale-95 transition flex items-center justify-center space-x-1 border border-emerald-400/40">
+            <span>🌐 從 GitHub 讀取 wortschatz_5000_words.json</span>
+          </button>
+
+          <label class="w-full py-2.5 bg-emerald-900/60 hover:bg-emerald-900 text-emerald-200 rounded-xl text-xs font-medium active:scale-95 transition flex items-center justify-center space-x-1 cursor-pointer border border-emerald-500/20">
+            <span>📂 從手機檔案選取 JSON 匯入</span>
+            <input type="file" id="fileJsonPicker" accept=".json" class="hidden">
+          </label>
+        </div>
+
         <p class="text-[10px] text-emerald-200 leading-tight">
-          💡 點擊後將會自動載入 5,000 個高頻單字，並安全保留你現有的天數與複習排程。
+          💡 提示：點擊任一按鈕皆會自動合併 5,000 單字，並安全保留你現有的天數與複習排程。
         </p>
       </div>
 
@@ -568,7 +588,7 @@
       <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-xs space-y-2.5">
         <div class="flex items-center justify-between">
           <h3 class="font-bold text-sm text-slate-800">📋 批次文字/JSON 匯入</h3>
-          <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold">免聯網 100% 成功</span>
+          <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold">自訂單字</span>
         </div>
         <textarea id="textareaBatchImport" rows="3" placeholder="在此處長按貼上自訂單字或 JSON..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-mono focus:ring-2 focus:ring-blue-500"></textarea>
         
@@ -596,35 +616,52 @@
 
   </main>
 
-  <!-- ================= BOTTOM NAVIGATION BAR ================= -->
-  <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-slate-200 z-30 safe-bottom">
-    <div class="max-w-md mx-auto grid grid-cols-5 px-1 py-1.5">
-      <button data-tab="viewCards" class="nav-tab flex flex-col items-center justify-center py-1 text-blue-600">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-        <span class="text-[9px] font-semibold mt-1">複習卡</span>
-      </button>
+  <!-- ================= CELEBRATION MODAL (成就解鎖彈窗) ================= -->
+  <div id="modalCelebration" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 text-white w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-amber-400/30 text-center space-y-4">
+      <div class="text-6xl animate-badge-pop" id="celebIcon">🏆</div>
+      <div>
+        <span class="text-xs font-extrabold uppercase tracking-widest text-amber-400 block mb-1">🎉 解鎖全新榮譽成就！</span>
+        <h3 id="celebTitle" class="text-xl font-black text-white">B1 移民先鋒</h3>
+        <p id="celebXp" class="text-xs text-emerald-400 font-bold mt-0.5">+50 XP 經驗值已入袋</p>
+      </div>
 
-      <button data-tab="viewAchievements" class="nav-tab flex flex-col items-center justify-center py-1 text-slate-400">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
-        <span class="text-[9px] font-semibold mt-1">成就面板</span>
-      </button>
+      <!-- Personal Custom Praise -->
+      <div class="bg-white/10 border border-white/10 rounded-2xl p-3.5 text-xs text-amber-200 leading-relaxed font-medium" id="celebPraise">
+        太神了！德國外事局官員看到你的德文實力都要起立向你敬禮！
+      </div>
 
-      <button data-tab="viewLibrary" class="nav-tab flex flex-col items-center justify-center py-1 text-slate-400">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-        <span class="text-[9px] font-semibold mt-1">單字庫</span>
-      </button>
-
-      <button data-tab="viewPronunciation" class="nav-tab flex flex-col items-center justify-center py-1 text-slate-400">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z"/></svg>
-        <span class="text-[9px] font-semibold mt-1">發音秘笈</span>
-      </button>
-
-      <button data-tab="viewSettings" class="nav-tab flex flex-col items-center justify-center py-1 text-slate-400">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>
-        <span class="text-[9px] font-semibold mt-1">單字同步</span>
-      </button>
+      <div class="space-y-2 pt-2">
+        <button id="btnShareCeleb" type="button" class="w-full py-3 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-lg active:scale-95 transition flex items-center justify-center space-x-1.5">
+          <span>📤 分享成就給朋友</span>
+        </button>
+        <button id="btnCloseCeleb" type="button" class="w-full py-2.5 bg-white/10 hover:bg-white/20 text-slate-300 text-xs font-bold rounded-xl active:scale-95 transition">
+          收下榮譽繼續學習
+        </button>
+      </div>
     </div>
-  </nav>
+  </div>
+
+  <!-- ================= BADGE DETAIL MODAL (勳章詳情與分享) ================= -->
+  <div id="modalBadgeDetail" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl space-y-4 text-center">
+      <div class="text-5xl" id="detailIcon">🏅</div>
+      <div>
+        <h3 id="detailTitle" class="text-lg font-bold text-slate-900">成就名稱</h3>
+        <span id="detailStatusBadge" class="inline-block mt-1 text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">已解鎖</span>
+      </div>
+      <p id="detailDesc" class="text-xs text-slate-600 leading-relaxed">成就說明與取得條件</p>
+
+      <div class="pt-2 space-y-2">
+        <button id="btnShareBadgeDetail" type="button" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl active:scale-95 transition flex items-center justify-center space-x-1.5">
+          <span>📤 分享這枚勳章</span>
+        </button>
+        <button id="btnCloseBadgeDetail" type="button" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl active:scale-95 transition">
+          關閉
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- ================= MODAL: ADD / EDIT WORD ================= -->
   <div id="modalWord" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
@@ -756,17 +793,33 @@
       unlockedBadges: []
     };
 
+    // 18 Comprehensive Achievements with Easter Eggs & Praise
     const ACHIEVEMENTS = [
-      { id: 'first_word', title: '初出茅廬', desc: '完成首次單字記憶評分', icon: '🌱', threshold: 1, type: 'review' },
-      { id: 'streak_3', title: '三日連勝', desc: '連續登入學習達成 3 天', icon: '🔥', threshold: 3, type: 'streak' },
-      { id: 'shadowing_5', title: '德音學徒', desc: '完成 5 次影子跟讀錄音', icon: '🗣️', threshold: 5, type: 'shadowing' },
-      { id: 'xp_100', title: '百點衝刺', desc: '累積經驗值達到 100 XP', icon: '⚡', threshold: 100, type: 'xp' },
-      { id: 'b1_10', title: 'B1 移民先鋒', desc: '掌握 10 個 B1 移民單字', icon: '🏛️', threshold: 10, type: 'b1' }
+      { id: 'first_word', title: '初出茅廬', desc: '完成首次單字記憶評分', icon: '🌱', threshold: 1, type: 'review', xp: 20, praise: '好的開始是成功的一半！你的德意志學習旅程正式啟航！' },
+      { id: 'streak_3', title: '三日神速', desc: '連續登入學習達成 3 天', icon: '🔥', threshold: 3, type: 'streak', xp: 50, praise: '連續三天不中斷！你的德語大腦神經元正在急速交織！' },
+      { id: 'streak_7', title: '一週不墜', desc: '連續登入學習達成 7 天', icon: '⚡', threshold: 7, type: 'streak', xp: 100, praise: '整整一星期！你展現了令人驚嘆的德式自律與毅力！' },
+      { id: 'streak_21', title: '德語習慣成自然', desc: '連續學習 21 天養成肌肉記憶', icon: '🏆', threshold: 21, type: 'streak', xp: 300, praise: '21天法則達成！德文已經融入你的呼吸與日常生活中！' },
+      { id: 'words_50', title: '字彙破繭', desc: '累計評分 50 個生字', icon: '🌿', threshold: 50, type: 'review', xp: 50, praise: '50個單字入袋！日常簡單看懂菜單與標示已經難不倒你！' },
+      { id: 'words_200', title: '日常無礙', desc: '累計評分 200 個生字', icon: '🌲', threshold: 200, type: 'review', xp: 150, praise: '200詞達成！你在柏林搭地鐵與超市採買已經如魚得水！' },
+      { id: 'words_500', title: 'DTZ 移民先鋒', desc: '累計掌握 500 個生字', icon: '🏛️', threshold: 500, type: 'review', xp: 300, praise: '500詞里程碑！外事局面談與市政租屋手續你已經能掌握核心！' },
+      { id: 'words_1000', title: '千詞俱樂部', desc: '累計掌握 1000 個生字', icon: '📚', threshold: 1000, type: 'review', xp: 500, praise: '破千單字量！這已經是歌德 A2 頂峰、跨入 B1 自由對話的門檻！' },
+      { id: 'words_5000', title: '德語活字典', desc: '載入並解鎖 5,000 完整詞庫', icon: '👑', threshold: 5000, type: 'database', xp: 1000, praise: '5000詞庫全量掌控！連德國本地人都要佩服你的單字儲備！' },
+      { id: 'shadowing_5', title: '德音學徒', desc: '完成 5 次影子跟讀錄音', icon: '🗣️', threshold: 5, type: 'shadowing', xp: 30, praise: '開口就是贏家！這道地的小舌音與變音讓人眼睛一亮！' },
+      { id: 'shadowing_20', title: '電台主播', desc: '完成 20 次影子跟讀錄音', icon: '🎙️', threshold: 20, type: 'shadowing', xp: 100, praise: '20次真聲跟讀！你已經完全克服了開口說德文的恐懼！' },
+      { id: 'speed_slow', title: '精細拆音', desc: '使用 0.5x 或 0.75x 慢速讀音訓練', icon: '🐢', threshold: 1, type: 'speed', xp: 30, praise: '慢工出細活！仔細雕琢每個子音與母音長短，這才是大師之道！' },
+      { id: 'phonetics_all', title: '發音秘笈通', desc: '點擊試聽 5 個以上發音規則示範', icon: '🔊', threshold: 5, type: 'phonetics', xp: 80, praise: '95% 看字讀音規則已烙印腦海！看到陌生單字也能張嘴就唸對！' },
+      { id: 'theme_daily', title: '生活萬事通', desc: '完成 20 次日常生活單字複習', icon: '☕', threshold: 20, type: 'theme_daily', xp: 50, praise: '起床到睡前，德國一天的所有生活場景都被你摸得透徹！' },
+      { id: 'theme_work', title: '職場菁英', desc: '完成 20 次職場進修單字複習', icon: '💼', threshold: 20, type: 'theme_work', xp: 50, praise: '合約、面試與開會無縫切換，你已經具備德企工作的語言競爭力！' },
+      { id: 'easter_cat', title: '生氣貓咪 [ç]', desc: '【隱藏成就】在發音秘笈試聽 ich / Milch 嘶聲', icon: '🐱', threshold: 1, type: 'hidden_cat', xp: 50, praise: '喵！你成功捕捉到了舌面貼硬顎的 Ich-Laut 貓咪生氣嘶聲！' },
+      { id: 'easter_night', title: '夜貓學霸', desc: '【隱藏成就】在深夜 22:00～04:00 刻苦背單字', icon: '🌙', threshold: 1, type: 'hidden_night', xp: 60, praise: '全德國都睡了，只有你還在發光！這份勤奮誰也奪不走！' },
+      { id: 'easter_long', title: '長詞征服者', desc: '【隱藏成就】記住超過 15 個字母的德文超長詞', icon: '🦕', threshold: 1, type: 'hidden_long', xp: 80, praise: '成功征服德語超長複合怪物！Aufenthaltstitel 也不過如此！' }
     ];
+
+    let currentSelectedBadge = null;
 
     function loadData() {
       try {
-        const savedWords = localStorage.getItem('wortschatz_words_v9');
+        const savedWords = localStorage.getItem('wortschatz_words_v11');
         if (savedWords) {
           words = JSON.parse(savedWords);
         } else {
@@ -774,7 +827,7 @@
           saveWords();
         }
 
-        const savedStats = localStorage.getItem('wortschatz_stats_v9');
+        const savedStats = localStorage.getItem('wortschatz_stats_v11');
         if (savedStats) {
           stats = { ...stats, ...JSON.parse(savedStats) };
         }
@@ -791,7 +844,7 @@
 
     function saveWords() {
       try {
-        localStorage.setItem('wortschatz_words_v9', JSON.stringify(words));
+        localStorage.setItem('wortschatz_words_v11', JSON.stringify(words));
       } catch (e) {}
       updateDomainCounters();
       updateDashboard();
@@ -799,7 +852,7 @@
 
     function saveStats() {
       try {
-        localStorage.setItem('wortschatz_stats_v9', JSON.stringify(stats));
+        localStorage.setItem('wortschatz_stats_v11', JSON.stringify(stats));
       } catch (e) {}
       updateDashboard();
     }
@@ -816,7 +869,7 @@
       }
     }
 
-    /* ========== AUDIO: WEB SPEECH API & 0.5x, 0.75x, 1.0x RATE ========== */
+    /* ========== AUDIO SPEECH ========== */
     function speakGerman(text, customRate = null) {
       if (!('speechSynthesis' in window)) {
         showToast('此環境未支援語音合成', '⚠️');
@@ -840,7 +893,11 @@
     function playPhoneticSample(text) {
       playClickSound();
       speakGerman(text, 0.75);
-      showToast(`發音：${text}`, '🔊');
+      showToast(`發音示範：${text}`, '🔊');
+      stats.phoneticsListened = (stats.phoneticsListened || 0) + 1;
+      if (text === 'ich' || text === 'Milch') triggerEasterEgg('easter_cat');
+      checkBadges();
+      saveStats();
     }
 
     function toggleSpeedMode() {
@@ -849,10 +906,12 @@
         speechRate = 0.75;
         document.getElementById('btnToggleSpeed').textContent = '0.75x';
         showToast('發音速度：0.75x (慢速)', '⚡');
+        triggerEasterEgg('speed_slow');
       } else if (speechRate === 0.75) {
         speechRate = 0.5;
         document.getElementById('btnToggleSpeed').textContent = '0.5x';
-        showToast('發音速度：0.5x (極慢分解)', '🐢');
+        showToast('發音速度：0.5x (極慢音素分解)', '🐢');
+        triggerEasterEgg('speed_slow');
       } else {
         speechRate = 1.0;
         document.getElementById('btnToggleSpeed').textContent = '1.0x';
@@ -964,7 +1023,29 @@
       } catch (e) {}
     }
 
-    /* ========== GAMIFICATION ========== */
+    function playCelebrationFanfare() {
+      if (!audioCtx) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      try {
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+          setTimeout(() => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+          }, idx * 100);
+        });
+      } catch (e) {}
+    }
+
+    /* ========== GAMIFICATION & CELEBRATION MODAL ========== */
     function addXP(amount) {
       stats.xp += amount;
       saveStats();
@@ -973,30 +1054,56 @@
     function getLevelInfo(xp) {
       const level = Math.floor(xp / 100) + 1;
       let title = "Lv.1 德語新手";
-      if (level >= 8) title = "Lv.8 柏林通";
+      if (level >= 15) title = "Lv.15 柏林市長";
+      else if (level >= 10) title = "Lv.10 歌德再世";
+      else if (level >= 8) title = "Lv.8 柏林通";
       else if (level >= 5) title = "Lv.5 雙語達人";
       else if (level >= 3) title = "Lv.3 移民研修者";
       else if (level >= 2) title = "Lv.2 語音探索家";
       return { level, title };
     }
 
+    function triggerEasterEgg(eggId) {
+      if (stats.unlockedBadges.includes(eggId)) return;
+      unlockBadge(eggId);
+    }
+
+    function unlockBadge(badgeId) {
+      if (stats.unlockedBadges.includes(badgeId)) return;
+      const b = ACHIEVEMENTS.find(item => item.id === badgeId);
+      if (!b) return;
+
+      stats.unlockedBadges.push(b.id);
+      addXP(b.xp);
+      saveStats();
+      updateDashboard();
+
+      // Show Fullscreen Celebration Modal
+      playCelebrationFanfare();
+      document.getElementById('celebIcon').textContent = b.icon;
+      document.getElementById('celebTitle').textContent = b.title;
+      document.getElementById('celebXp').textContent = `+${b.xp} XP 經驗值已入袋`;
+      document.getElementById('celebPraise').textContent = b.praise;
+      document.getElementById('modalCelebration').classList.remove('hidden');
+    }
+
     function checkBadges() {
+      const nowHours = new Date().getHours();
+      if (nowHours >= 22 || nowHours < 4) triggerEasterEgg('easter_night');
+
       ACHIEVEMENTS.forEach(ach => {
         if (stats.unlockedBadges.includes(ach.id)) return;
         let unlocked = false;
+
         if (ach.type === 'review' && stats.totalReviews >= ach.threshold) unlocked = true;
         if (ach.type === 'streak' && stats.streak >= ach.threshold) unlocked = true;
         if (ach.type === 'xp' && stats.xp >= ach.threshold) unlocked = true;
         if (ach.type === 'shadowing' && (stats.shadowingsCount || 0) >= ach.threshold) unlocked = true;
-        if (ach.type === 'b1') {
-          const masteredB1 = words.filter(w => w.level === 'B1' && (w.repetitions || 0) >= 1).length;
-          if (masteredB1 >= ach.threshold) unlocked = true;
-        }
+        if (ach.type === 'phonetics' && (stats.phoneticsListened || 0) >= ach.threshold) unlocked = true;
+        if (ach.type === 'database' && words.length >= ach.threshold) unlocked = true;
 
         if (unlocked) {
-          stats.unlockedBadges.push(ach.id);
-          addXP(30);
-          showToast(`🏆 解鎖成就：${ach.title} (+30 XP)！`, '🎉');
+          unlockBadge(ach.id);
         }
       });
     }
@@ -1024,23 +1131,70 @@
       document.getElementById('statA2Progress').textContent = `${a2Done}/${a2Words.length}`;
 
       document.getElementById('statB1Progress').textContent = `${b1Mastered}/${b1Words.length}`;
+      document.getElementById('badgeProgressCount').textContent = `${stats.unlockedBadges.length}/${ACHIEVEMENTS.length}`;
 
       const container = document.getElementById('badgesContainer');
       container.innerHTML = ACHIEVEMENTS.map(ach => {
         const isUnlocked = stats.unlockedBadges.includes(ach.id);
         return `
-          <div class="p-3 rounded-2xl border ${isUnlocked ? 'bg-amber-50/60 border-amber-200' : 'bg-slate-100/60 border-slate-200 opacity-60'} flex items-center space-x-2.5">
+          <div onclick="openBadgeDetail('${ach.id}')" class="p-3 rounded-2xl border cursor-pointer active:scale-95 transition ${isUnlocked ? 'bg-amber-50/70 border-amber-200 shadow-xs' : 'bg-slate-100/60 border-slate-200 opacity-60'} flex items-center space-x-2.5">
             <span class="text-2xl">${ach.icon}</span>
-            <div class="min-w-0 flex-1">
+            <div class="min-w-0 flex-1 text-left">
               <div class="flex items-center space-x-1">
-                <span class="font-bold text-xs ${isUnlocked ? 'text-amber-900' : 'text-slate-500'} truncate">${ach.title}</span>
-                ${isUnlocked ? '<span class="text-[9px] bg-amber-200 text-amber-800 px-1 rounded font-bold">已解鎖</span>' : ''}
+                <span class="font-bold text-xs ${isUnlocked ? 'text-amber-950' : 'text-slate-500'} truncate">${ach.title}</span>
+                ${isUnlocked ? '<span class="text-[8px] bg-amber-200 text-amber-800 px-1 rounded font-bold">已解鎖</span>' : ''}
               </div>
-              <p class="text-[10px] text-slate-500 mt-0.5 leading-snug">${ach.desc}</p>
+              <p class="text-[10px] text-slate-500 mt-0.5 truncate">${ach.desc}</p>
             </div>
           </div>
         `;
       }).join('');
+    }
+
+    function openBadgeDetail(badgeId) {
+      playClickSound();
+      const b = ACHIEVEMENTS.find(item => item.id === badgeId);
+      if (!b) return;
+      currentSelectedBadge = b;
+
+      const isUnlocked = stats.unlockedBadges.includes(b.id);
+      document.getElementById('detailIcon').textContent = b.icon;
+      document.getElementById('detailTitle').textContent = b.title;
+      document.getElementById('detailDesc').textContent = b.desc;
+      
+      const statusBadge = document.getElementById('detailStatusBadge');
+      const shareBtn = document.getElementById('btnShareBadgeDetail');
+
+      if (isUnlocked) {
+        statusBadge.textContent = '🌟 已解鎖 (+ ' + b.xp + ' XP)';
+        statusBadge.className = 'inline-block mt-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
+        shareBtn.classList.remove('hidden');
+      } else {
+        statusBadge.textContent = '🔒 尚未解鎖';
+        statusBadge.className = 'inline-block mt-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700';
+        shareBtn.classList.add('hidden');
+      }
+
+      document.getElementById('modalBadgeDetail').classList.remove('hidden');
+    }
+
+    function shareBadge(badge) {
+      playClickSound();
+      const shareText = `🇩🇪 我在 WortSchatz 德文單字庫解鎖了【${badge.title}】榮譽勳章！已連續學習 ${stats.streak} 天，累積 ${stats.xp} XP！快來一起挑戰德語 B1 移民檢定 👉 https://tgwdesign.github.io/wortschatzCT/`;
+      
+      if (navigator.share) {
+        navigator.share({
+          title: `解鎖德語成就：${badge.title}`,
+          text: shareText,
+          url: 'https://tgwdesign.github.io/wortschatzCT/'
+        }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(shareText).then(() => {
+          showToast('已複製炫耀文案到剪貼簿！可貼到 LINE 或 IG 分享', '📋');
+        }).catch(() => {
+          showToast('分享失敗，請手動複製', '⚠️');
+        });
+      }
     }
 
     /* ========== DOMAINS & THEMES HELPERS ========== */
@@ -1073,7 +1227,7 @@
       });
     }
 
-    /* ========== FLASHCARD REVIEW & DYNAMIC FONT SIZING ========== */
+    /* ========== FLASHCARD REVIEW ========== */
     function renderCurrentCard() {
       const pool = getActivePool();
       if (pool.length === 0) {
@@ -1155,9 +1309,11 @@
       } else {
         noteBox.classList.add('hidden');
       }
+
+      if (w.word.length > 15) triggerEasterEgg('easter_long');
     }
 
-    /* ========== 100% RELIABLE CARD FLIP FIX (IOS SAFARI POINTER EVENTS) ========== */
+    /* ========== 100% RELIABLE FAST FLIP LOGIC ========== */
     function toggleFlipCard() {
       playClickSound(400);
       const card = document.getElementById('flashcard');
@@ -1215,15 +1371,19 @@
       showToast(`已排程 ${w.interval} 天後複習 (+10 XP)！`, '🎯');
     }
 
-    /* ========== SWIPE GESTURES & TAP BINDINGS ========== */
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let touchDeltaX = 0;
-    let isSwiping = false;
+    /* ========== DUAL FLIP TAP: CENTRAL AREA + EXPLICIT BAR (0ms SINGLE TAP) ========== */
+    let lastFlipTime = 0;
+    function safeFlip() {
+      const now = Date.now();
+      if (now - lastFlipTime < 350) return; // Debounce double taps
+      lastFlipTime = now;
+      toggleFlipCard();
+    }
 
     function initSwipeGestures() {
       const card = document.getElementById('flashcard');
 
+      // Swipe Left / Right on card (only for rating, NOT for flipping)
       card.addEventListener('touchstart', e => {
         if (e.target.closest('#audioControlBar') || e.target.closest('button')) {
           isSwiping = false;
@@ -1280,33 +1440,30 @@
         }, { passive: false });
       });
 
-      // BIND BOTH CLICK & TOUCHEND TO FLIP BUTTONS
-      const bindFlipButton = (btnId) => {
-        const btn = document.getElementById(btnId);
-        if (!btn) return;
-        btn.addEventListener('touchend', (e) => {
+      // BIND FAST TAP TO BOTH DESIGNATED BARS & CENTRAL REGIONS
+      const bindFastTap = (elementId) => {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        el.addEventListener('pointerdown', (e) => {
+          if (e.target.closest('button') && e.target.id !== elementId) return;
           e.preventDefault();
           e.stopPropagation();
-          toggleFlipCard();
+          safeFlip();
         });
-        btn.addEventListener('click', (e) => {
+        el.addEventListener('click', (e) => {
+          if (e.target.closest('button') && e.target.id !== elementId) return;
           e.stopPropagation();
-          toggleFlipCard();
+          safeFlip();
         });
       };
 
-      bindFlipButton('btnExplicitFlip');
-      bindFlipButton('btnFlipBack');
+      // Front: Both bar and center tap area
+      bindFastTap('btnExplicitFlip');
+      bindFastTap('cardFrontCenterArea');
 
-      document.getElementById('cardFrontTapArea').addEventListener('click', (e) => {
-        if (e.target.closest('button')) return;
-        toggleFlipCard();
-      });
-
-      document.getElementById('cardBackTapArea').addEventListener('click', (e) => {
-        if (e.target.closest('button')) return;
-        toggleFlipCard();
-      });
+      // Back: Both bar and center tap area
+      bindFastTap('btnFlipBack');
+      bindFastTap('cardBackCenterArea');
     }
 
     /* ========== BATCH IMPORT & EXPANSION PACKS ========== */
@@ -1339,6 +1496,7 @@
       saveWords();
       renderCurrentCard();
       renderLibraryList();
+      checkBadges();
       return added;
     }
 
@@ -1392,7 +1550,7 @@
       }
     }
 
-    /* ========== LIBRARY VIEW (WITH EXAMPLE SENTENCES AND AUDIO) ========== */
+    /* ========== LIBRARY VIEW ========== */
     function renderLibraryList() {
       const container = document.getElementById('wordList');
       const query = document.getElementById('inputSearch').value.trim().toLowerCase();
@@ -1688,7 +1846,7 @@
         showToast(`已新增：${wordText} (+20 XP)！`, '✅');
       });
 
-      // One-click 5000 Pack Button
+      // 1. One-click 5000 Pack Button (Embedded)
       document.getElementById('btnOneClick5000Pack').addEventListener('click', () => {
         playClickSound(300);
         showToast('正在載入 5,000 單字庫...', '⏳');
@@ -1696,6 +1854,59 @@
           const count = mergeWordsList(FULL_5000_PACK);
           showToast(`🎉 成功載入！題庫總量已達 ${words.length} 字！`, '🏛️');
         }, 100);
+      });
+
+      // 2. Fetch wortschatz_5000_words.json directly from GitHub / Hosting
+      document.getElementById('btnFetchGitHubJson').addEventListener('click', async () => {
+        playClickSound(400);
+        showToast('正在向 GitHub 讀取 JSON 題庫...', '⏳');
+        try {
+          const res = await fetch('./wortschatz_5000_words.json?v=' + Date.now());
+          if (!res.ok) throw new Error('伺服器未找到 wortschatz_5000_words.json');
+          const data = await res.json();
+          const count = mergeWordsList(data);
+          showToast(`🎉 成功從 GitHub 載入！題庫總量達 ${words.length} 字！`, '🌐');
+        } catch (err) {
+          showToast(`讀取失敗：${err.message || '請確認檔案已在 GitHub 根目錄'}`, '⚠️');
+        }
+      });
+
+      // 3. Local JSON File Picker
+      const filePicker = document.getElementById('fileJsonPicker');
+      filePicker.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        showToast(`正在讀取 ${file.name}...`, '📂');
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const data = JSON.parse(event.target.result);
+            const list = Array.isArray(data) ? data : (data.words || [data]);
+            const count = mergeWordsList(list);
+            showToast(`🎉 成功從檔案匯入！新增了 ${count} 個單字`, '📥');
+          } catch (err) {
+            showToast('JSON 格式解析失敗，請確認檔案內容', '⚠️');
+          }
+        };
+        reader.readAsText(file);
+      });
+
+      // Celebration Modal Handlers
+      document.getElementById('btnCloseCeleb').addEventListener('click', () => {
+        document.getElementById('modalCelebration').classList.add('hidden');
+      });
+      document.getElementById('btnShareCeleb').addEventListener('click', () => {
+        const icon = document.getElementById('celebIcon').textContent;
+        const title = document.getElementById('celebTitle').textContent;
+        shareBadge({ icon, title });
+      });
+
+      // Badge Detail Modal Handlers
+      document.getElementById('btnCloseBadgeDetail').addEventListener('click', () => {
+        document.getElementById('modalBadgeDetail').classList.add('hidden');
+      });
+      document.getElementById('btnShareBadgeDetail').addEventListener('click', () => {
+        if (currentSelectedBadge) shareBadge(currentSelectedBadge);
       });
 
       document.getElementById('btnExecuteBatchImport').addEventListener('click', executeBatchImport);
